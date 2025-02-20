@@ -1,8 +1,16 @@
 import React, { useState } from 'react';
-import { StyleSheet, Text, TextInput, View, TouchableOpacity, Pressable } from 'react-native';
+import {
+    StyleSheet, Text, TextInput, View, TouchableOpacity, Pressable, Alert
+} from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
-import { useNavigation } from '@react-navigation/native'; // Import Navigation Hook
+import { useNavigation } from '@react-navigation/native';
+import Constants from 'expo-constants';
+import * as SecureStore from 'expo-secure-store';
 
+// Lấy URL API từ .env
+const API_URL = Constants.expoConfig?.extra?.EXPO_PUBLIC_API_URL || 'https://bookshelf-be.onrender.com';
+
+// Component Checkbox Tùy chỉnh
 const CustomCheckBox = ({ value, onChange }) => {
     return (
         <Pressable style={styles.checkbox} onPress={() => onChange(!value)}>
@@ -12,22 +20,65 @@ const CustomCheckBox = ({ value, onChange }) => {
 };
 
 export default function Login() {
-    const navigation = useNavigation(); // Sử dụng navigation
+    const navigation = useNavigation();
     const [showPassword, setShowPassword] = useState(false);
     const [rememberMe, setRememberMe] = useState(false);
+    const [email, setEmail] = useState('');
+    const [password, setPassword] = useState('');
+
+    // Xử lý đăng nhập
+    const handleLogin = async () => {
+        if (!email || !password) {
+            Alert.alert("Error", "Please enter your email and password.");
+            return;
+        }
+
+        try {
+            console.log(email, password)
+            const response = await fetch(`${API_URL}/api/auth/login`, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({ email, password }),
+            });
+
+            const data = await response.json();
+            console.log(data)
+            if (response.ok) {
+                // Lưu token vào SecureStore (nếu cần)
+                // await SecureStore.setItemAsync('userToken', data.token);
+                Alert.alert("Success", "Login successful!");
+                navigation.navigate('Home'); // Chuyển hướng đến Home
+            } else {
+                Alert.alert("Error", data.message || "Login failed.");
+            }
+        } catch (error) {
+            console.error(error);
+            Alert.alert("Error", "Something went wrong!");
+        }
+    };
 
     return (
         <View style={styles.container}>
             <Text style={styles.title}>Welcome back</Text>
             <Text style={styles.subtitle}>Login to your account</Text>
 
-            <TextInput style={styles.input} placeholder="Email" keyboardType="email-address" />
+            <TextInput
+                style={styles.input}
+                placeholder="Email"
+                keyboardType="email-address"
+                value={email}
+                onChangeText={setEmail}
+            />
 
             <View style={styles.inputContainer}>
                 <TextInput
                     style={styles.inputPassword}
                     placeholder="Password"
                     secureTextEntry={!showPassword}
+                    value={password}
+                    onChangeText={setPassword}
                 />
                 <TouchableOpacity onPress={() => setShowPassword(!showPassword)} style={styles.icon}>
                     <Ionicons name={showPassword ? "eye-outline" : "eye-off-outline"} size={20} color="gray" />
@@ -44,12 +95,12 @@ export default function Login() {
             </View>
 
             <Text style={styles.agreement}>
-                By creating your account or continue with Google, you agree to our{' '}
+                By creating your account or continuing with Google, you agree to our{' '}
                 <Text style={styles.link}>Terms and Conditions</Text> and <Text style={styles.link}>Privacy Policy</Text>.
             </Text>
 
-            <TouchableOpacity style={styles.LoginButton}>
-                <Text style={styles.LoginText}>Sign in</Text>
+            <TouchableOpacity style={styles.LoginButton} onPress={handleLogin}>
+                <Text style={styles.LoginText}>Login</Text>
             </TouchableOpacity>
 
             <View style={styles.dividerContainer}>
@@ -63,7 +114,6 @@ export default function Login() {
                 <Text style={styles.googleButtonText}>Sign In with Google</Text>
             </TouchableOpacity>
 
-            {/* Điều hướng đến RegisterScreen */}
             <Text style={styles.footerText}>
                 Don't have an account?{' '}
                 <Text style={styles.link} onPress={() => navigation.navigate('Register')}>
@@ -133,7 +183,7 @@ const styles = StyleSheet.create({
         fontSize: 14,
         fontWeight: 'bold',
         textDecorationLine: 'underline',
-        marginLeft: '100',
+        marginLeft: '110',
     },
     agreement: {
         fontSize: 12,

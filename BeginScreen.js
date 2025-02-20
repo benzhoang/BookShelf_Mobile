@@ -4,6 +4,7 @@ import { NavigationContainer } from '@react-navigation/native';
 import { createStackNavigator } from '@react-navigation/stack';
 import Register from './Register/RegisterScreen';
 import Login from './Login/LoginScreen';
+import HomeScreen from './Home/HomePage';
 
 const Stack = createStackNavigator();
 
@@ -11,15 +12,16 @@ export default function App() {
   return (
     <NavigationContainer>
       <Stack.Navigator>
-        <Stack.Screen name="Home" component={HomeScreen} options={{ headerShown: false }} />
+        <Stack.Screen name="Begin" component={BeginScreen} options={{ headerShown: false }} />
         <Stack.Screen name="Register" component={Register} />
         <Stack.Screen name="Login" component={Login} />
+        <Stack.Screen name="Home" component={HomeScreen} />
       </Stack.Navigator>
     </NavigationContainer>
   );
 }
 
-function HomeScreen({ navigation }) {
+function BeginScreen({ navigation }) {
   return (
     <View style={styles.container}>
       <StatusBar style="light" />

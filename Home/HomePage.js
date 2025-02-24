@@ -2,6 +2,8 @@ import React from 'react';
 import { View, Text, TextInput, Image } from 'react-native';
 import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
 import { FontAwesome } from '@expo/vector-icons';
+import QRScreen from '../Screens/QRScreen';
+import ProfileScreen from '../Screens/ProfileScreen';
 
 function HomeScreen() {
     return (
@@ -26,22 +28,6 @@ function CategoryScreen() {
     return (
         <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center' }}>
             <Text>Category Screen</Text>
-        </View>
-    );
-}
-
-function QRScreen() {
-    return (
-        <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center' }}>
-            <Text>QR Screen</Text>
-        </View>
-    );
-}
-
-function ProfileScreen() {
-    return (
-        <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center' }}>
-            <Text>Profile Screen</Text>
         </View>
     );
 }

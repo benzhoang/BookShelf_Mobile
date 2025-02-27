@@ -4,6 +4,7 @@ import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
 import { FontAwesome } from '@expo/vector-icons';
 import QRScreen from '../Screens/QRScreen';
 import ProfileScreen from '../Screens/ProfileScreen';
+import CategoryScreen from '../Screens/CategoryScreen';
 
 function HomeScreen() {
     return (
@@ -20,14 +21,6 @@ function HomeScreen() {
                 <FontAwesome name="search" size={20} color="#000" style={{ marginRight: 10 }} />
                 <TextInput placeholder="Search book" style={{ flex: 1 }} />
             </View>
-        </View>
-    );
-}
-
-function CategoryScreen() {
-    return (
-        <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center' }}>
-            <Text>Category Screen</Text>
         </View>
     );
 }

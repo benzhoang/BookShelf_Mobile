@@ -1,56 +1,72 @@
 import React, { useState, useEffect } from 'react';
-import { View, Text, StyleSheet, Button, Alert } from 'react-native';
-import { BarCodeScanner } from 'expo-camera';
+import { View, Text, StyleSheet, Button, Alert, PermissionsAndroid } from 'react-native';
+import { RNCamera } from 'react-native-camera';
 
 export default function QRScreen() {
-    const [hasPermission, setHasPermission] = useState(null); // Trạng thái quyền truy cập camera
-    const [scanned, setScanned] = useState(false); // Trạng thái đã quét mã QR hay chưa
+    const [hasPermission, setHasPermission] = useState(null);
+    const [scanned, setScanned] = useState(false);
 
-    // Yêu cầu quyền truy cập camera khi component được mount
+    // Yêu cầu quyền truy cập camera
     useEffect(() => {
         (async () => {
-            const { status } = await BarCodeScanner.requestPermissionsAsync();
-            setHasPermission(status === 'granted');
+            if (Platform.OS === 'android') {
+                const granted = await PermissionsAndroid.request(
+                    PermissionsAndroid.PERMISSIONS.CAMERA,
+                    {
+                        title: 'Yêu cầu quyền camera',
+                        message: 'Ứng dụng cần quyền truy cập camera để quét mã QR.',
+                        buttonPositive: 'Đồng ý',
+                        buttonNegative: 'Từ chối',
+                    }
+                );
+                setHasPermission(granted === PermissionsAndroid.RESULTS.GRANTED);
+            } else {
+                // iOS sẽ tự động yêu cầu quyền khi camera khởi động
+                setHasPermission(true); // Giả định tạm thời, có thể kiểm tra thêm nếu cần
+            }
         })();
     }, []);
 
     // Xử lý khi quét được mã QR
-    const handleBarCodeScanned = ({ type, data }) => {
-        setScanned(true);
-        Alert.alert(
-            'QR Code Scanned',
-            `Type: ${type}\nData: ${data}`,
-            [{ text: 'OK', onPress: () => setScanned(false) }] // Reset để quét lại
-        );
+    const handleBarCodeScanned = ({ barcodes }) => {
+        if (barcodes.length > 0) {
+            setScanned(true);
+            const { type, data } = barcodes[0];
+            Alert.alert(
+                'QR Code Scanned',
+                `Type: ${type}\nData: ${data}`,
+                [{ text: 'OK', onPress: () => setScanned(false) }]
+            );
+        }
     };
 
-    // Kiểm tra trạng thái quyền truy cập camera
     if (hasPermission === null) {
         return (
             <View style={styles.container}>
-                <Text>Requesting camera permission...</Text>
-            </View>
-        );
-    }
-    if (hasPermission === false) {
-        return (
-            <View style={styles.container}>
-                <Text>No access to camera. Please allow camera permission in settings.</Text>
+                <Text>Đang yêu cầu quyền truy cập camera...</Text>
             </View>
         );
     }
 
-    // Giao diện chính với camera quét QR
+    if (hasPermission === false) {
+        return (
+            <View style={styles.container}>
+                <Text>Không có quyền truy cập camera. Vui lòng cấp quyền trong cài đặt.</Text>
+            </View>
+        );
+    }
+
     return (
         <View style={styles.container}>
-            <BarCodeScanner
-                onBarCodeScanned={scanned ? undefined : handleBarCodeScanned} // Chỉ quét khi chưa scanned
-                style={StyleSheet.absoluteFillObject} // Chiếm toàn bộ màn hình
+            <RNCamera
+                style={StyleSheet.absoluteFillObject}
+                onBarCodeRead={scanned ? undefined : handleBarCodeScanned} // Chỉ quét khi chưa scanned
+                captureAudio={false} // Tắt âm thanh để tránh lỗi quyền micro
             />
             {scanned && (
-                <Button title="Tap to Scan Again" onPress={() => setScanned(false)} />
+                <Button title="Quét lại" onPress={() => setScanned(false)} />
             )}
-            <Text style={styles.instruction}>Point your camera at a QR code</Text>
+            <Text style={styles.instruction}>Hướng camera vào mã QR</Text>
         </View>
     );
 }
@@ -60,7 +76,7 @@ const styles = StyleSheet.create({
         flex: 1,
         justifyContent: 'center',
         alignItems: 'center',
-        backgroundColor: '#000', // Nền đen để camera nổi bật
+        backgroundColor: '#000',
     },
     instruction: {
         position: 'absolute',

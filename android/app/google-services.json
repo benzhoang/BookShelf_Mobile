@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "164086794552",
+    "project_id": "push-745cf",
+    "storage_bucket": "push-745cf.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:164086794552:android:ae86089018424e5d1319cd",
+        "android_client_info": {
+          "package_name": "com.hungpham281.BookShelf"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyAWTWmRKcyiqPl7Bh4blMWl7xLGY3A3Tu4"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

@@ -16,17 +16,19 @@
       "supportsTablet": true
     },
     "android": {
+      "package": "com.hungpham281.BookShelf",
+      "googleServicesFile": "./google-services.json",
       "adaptiveIcon": {
         "foregroundImage": "./assets/adaptive-icon.png",
-        "backgroundColor": "#ffffff"
-      }
+        "backgroundColor": "#ffffff",
+
+        "useNextNotificationsApi": true
+      },
+      "permissions": ["android.permission.CAMERA"]
     },
     "web": {
       "favicon": "./assets/favicon.png"
     },
-    "plugins": [
-      "expo-secure-store",
-      "expo-barcode-scanner"
-    ]
+    "plugins": ["expo-secure-store", "expo-barcode-scanner"]
   }
 }

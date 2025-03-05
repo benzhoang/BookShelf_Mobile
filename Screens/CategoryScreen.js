@@ -1,26 +1,27 @@
 import React, { useState, useEffect } from 'react';
-import { View, Text, FlatList, Image, StyleSheet } from 'react-native';
+import { View, Text, FlatList, Image, StyleSheet, TouchableOpacity } from 'react-native';
+import ProductScreen from './ProductScreen';
 
-// API URL from environment variable (assuming it's set in your Expo config)
+// API URL từ biến môi trường
 const API_URL = process.env.EXPO_PUBLIC_API_URL || 'https://bookshelf-be.onrender.com';
 
-function CategoryScreen() {
+function CategoryScreen({ navigation }) { // Thêm navigation prop từ React Navigation
     const [categories, setCategories] = useState([]);
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState(null);
-    const [listKey, setListKey] = useState(0); // Add state for FlatList key
+    const [listKey, setListKey] = useState(0);
 
-    // Fetch categories when the component mounts
+    // Lấy danh sách danh mục khi component mount
     useEffect(() => {
         const fetchCategories = async () => {
             try {
-                const response = await fetch(`${API_URL}/api/categories`); // Assuming /categories endpoint
+                const response = await fetch(`${API_URL}/api/categories`);
                 const data = await response.json();
-                setCategories(data); // Expecting an array of { categoryName, ... }
+                setCategories(data);
                 setLoading(false);
-                setListKey(prevKey => prevKey + 1); // Update key to force re-render
+                setListKey(prevKey => prevKey + 1);
             } catch (err) {
-                setError('Failed to load categories');
+                setError('Không thể tải danh mục');
                 setLoading(false);
             }
         };
@@ -28,22 +29,25 @@ function CategoryScreen() {
         fetchCategories();
     }, []);
 
-    // Render each category item
+    // Render từng danh mục với khả năng nhấn để điều hướng
     const renderCategory = ({ item }) => (
-        <View style={styles.categoryItem}>
+        <TouchableOpacity
+            style={styles.categoryItem}
+            onPress={() => navigation.navigate('ProductScreen', { categoryName: item.categoryName })} // Điều hướng sang ProductScreen
+        >
             <Image
-                source={require('../assets/loi-404-tren-cyber-panel.jpg')} // Adjust path as needed
+                source={require('../assets/loi-404-tren-cyber-panel.jpg')}
                 style={styles.backgroundImage}
             />
             <Text style={styles.categoryText}>{item.categoryName}</Text>
-        </View>
+        </TouchableOpacity>
     );
 
-    // Show loading, error, or the list
+    // Hiển thị loading, lỗi, hoặc danh sách
     if (loading) {
         return (
             <View style={styles.center}>
-                <Text>Loading...</Text>
+                <Text>Đang tải...</Text>
             </View>
         );
     }
@@ -58,25 +62,25 @@ function CategoryScreen() {
 
     return (
         <View style={styles.container}>
-            <Text style={styles.header}>Book Categories</Text>
+            <Text style={styles.header}>Danh mục sách</Text>
             <FlatList
-                key={listKey} // Add key to force re-render when data changes
+                key={listKey}
                 data={categories}
                 renderItem={renderCategory}
-                keyExtractor={(item) => item.id ? item.id.toString() : item.categoryName} // Adjust based on your API response
-                numColumns={2} // Keep numColumns constant
-                columnWrapperStyle={styles.columnWrapper} // Add spacing between columns
+                keyExtractor={(item) => item.id ? item.id.toString() : item.categoryName}
+                numColumns={2}
+                columnWrapperStyle={styles.columnWrapper}
                 contentContainerStyle={styles.list}
             />
         </View>
     );
 }
 
-// Styles for the screen
+// Styles cho màn hình
 const styles = StyleSheet.create({
     container: {
         flex: 1,
-        backgroundColor: '#C4A484', // Matching your HomeScreen background
+        backgroundColor: '#C4A484',
         padding: 20,
     },
     center: {
@@ -91,31 +95,31 @@ const styles = StyleSheet.create({
         marginBottom: 20,
     },
     categoryItem: {
-        flex: 1, // Ensure items take equal space in the row
+        flex: 1,
         padding: 15,
         borderRadius: 10,
-        margin: 5, // Add margin for spacing
-        height: 150, // Fixed height to match the image layout
+        margin: 5,
+        height: 150,
         justifyContent: 'center',
         alignItems: 'center',
-        position: 'relative', // For layering text over the image
+        position: 'relative',
     },
     backgroundImage: {
-        width: '100%', // Fill the container
-        height: '100%', // Fill the container
+        width: '100%',
+        height: '100%',
         borderRadius: 10,
-        position: 'absolute', // Position behind the text
-        opacity: 0.5, // Slightly fade the image for a muted effect (adjust as needed)
+        position: 'absolute',
+        opacity: 0.5,
     },
     categoryText: {
         fontSize: 20,
         color: '#000',
         textAlign: 'center',
         top: 25,
-        zIndex: 1, // Ensure text is on top of the image
+        zIndex: 1,
     },
     columnWrapper: {
-        justifyContent: 'space-between', // Space evenly between columns
+        justifyContent: 'space-between',
     },
     list: {
         paddingBottom: 20,

@@ -1,45 +1,31 @@
 import React, { useState, useEffect } from 'react';
-import { View, Text, StyleSheet, Button, Alert, PermissionsAndroid } from 'react-native';
-import { RNCamera } from 'react-native-camera';
+import { View, Text, StyleSheet, Button, Alert } from 'react-native';
+import { Camera } from 'expo-camera';
 
 export default function QRScreen() {
     const [hasPermission, setHasPermission] = useState(null);
     const [scanned, setScanned] = useState(false);
+    const [camera, setCamera] = useState(null); // Tham chiếu đến camera
 
     // Yêu cầu quyền truy cập camera
     useEffect(() => {
         (async () => {
-            if (Platform.OS === 'android') {
-                const granted = await PermissionsAndroid.request(
-                    PermissionsAndroid.PERMISSIONS.CAMERA,
-                    {
-                        title: 'Yêu cầu quyền camera',
-                        message: 'Ứng dụng cần quyền truy cập camera để quét mã QR.',
-                        buttonPositive: 'Đồng ý',
-                        buttonNegative: 'Từ chối',
-                    }
-                );
-                setHasPermission(granted === PermissionsAndroid.RESULTS.GRANTED);
-            } else {
-                // iOS sẽ tự động yêu cầu quyền khi camera khởi động
-                setHasPermission(true); // Giả định tạm thời, có thể kiểm tra thêm nếu cần
-            }
+            const { status } = await Camera.requestPermissions();
+            setHasPermission(status === 'granted');
         })();
     }, []);
 
-    // Xử lý khi quét được mã QR
-    const handleBarCodeScanned = ({ barcodes }) => {
-        if (barcodes.length > 0) {
-            setScanned(true);
-            const { type, data } = barcodes[0];
-            Alert.alert(
-                'QR Code Scanned',
-                `Type: ${type}\nData: ${data}`,
-                [{ text: 'OK', onPress: () => setScanned(false) }]
-            );
-        }
+    // Xử lý khi quét được mã (QR hoặc barcode)
+    const handleBarCodeScanned = ({ type, data }) => {
+        setScanned(true);
+        Alert.alert(
+            'Mã Đã Quét',
+            `Loại: ${type}\nDữ liệu: ${data}`,
+            [{ text: 'OK', onPress: () => setScanned(false) }]
+        );
     };
 
+    // Trạng thái khi đang yêu cầu quyền
     if (hasPermission === null) {
         return (
             <View style={styles.container}>
@@ -48,6 +34,7 @@ export default function QRScreen() {
         );
     }
 
+    // Trạng thái khi quyền bị từ chối
     if (hasPermission === false) {
         return (
             <View style={styles.container}>
@@ -58,15 +45,22 @@ export default function QRScreen() {
 
     return (
         <View style={styles.container}>
-            <RNCamera
+            <Camera
                 style={StyleSheet.absoluteFillObject}
-                onBarCodeRead={scanned ? undefined : handleBarCodeScanned} // Chỉ quét khi chưa scanned
-                captureAudio={false} // Tắt âm thanh để tránh lỗi quyền micro
+                onBarCodeScanned={scanned ? undefined : handleBarCodeScanned}
+                barCodeScannerSettings={{
+                    barCodeTypes: [
+                        Camera.Constants.BarCodeType.qr,      // Quét mã QR
+                        Camera.Constants.BarCodeType.ean13,   // Quét barcode EAN-13
+                        Camera.Constants.BarCodeType.code128, // Quét barcode Code-128
+                    ],
+                }}
+                ref={(ref) => setCamera(ref)}
             />
             {scanned && (
                 <Button title="Quét lại" onPress={() => setScanned(false)} />
             )}
-            <Text style={styles.instruction}>Hướng camera vào mã QR</Text>
+            <Text style={styles.instruction}>Hướng camera vào mã QR hoặc barcode</Text>
         </View>
     );
 }

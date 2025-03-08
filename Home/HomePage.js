@@ -2,12 +2,8 @@ import React from 'react';
 import { View, Text, TextInput, Image } from 'react-native';
 import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
 import { FontAwesome } from '@expo/vector-icons';
-import QRScreen from '../Screens/QRScreen';
-import ProfileScreen from '../Screens/ProfileScreen';
-import CategoryScreen from '../Screens/CategoryScreen';
-import BeginScreen from '../BeginScreen';
 
-function HomeScreen() {
+export default function HomeScreen() {
     return (
         <View style={{ flex: 1, backgroundColor: '#C4A484', padding: 20 }}>
             <View style={{ flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center' }}>
@@ -26,46 +22,3 @@ function HomeScreen() {
     );
 }
 
-const Tab = createBottomTabNavigator();
-
-export default function App() {
-    return (
-        <Tab.Navigator
-            screenOptions={{
-                headerShown: false,
-                tabBarStyle: { backgroundColor: '#8B5E3C' }, // Màu nâu phù hợp với background
-                tabBarActiveTintColor: '#1E90FF', // Màu chữ và icon khi được chọn (trắng)
-                tabBarInactiveTintColor: '#E0E0E0', // Màu chữ và icon khi không được chọn (xám nhạt)
-            }}
-        >
-            <Tab.Screen
-                name="Home"
-                component={HomeScreen}
-                options={{
-                    tabBarIcon: ({ color }) => (<FontAwesome name="home" size={24} color={color} />)
-                }}
-            />
-            <Tab.Screen
-                name="Category"
-                component={CategoryScreen}
-                options={{
-                    tabBarIcon: ({ color }) => (<FontAwesome name="list" size={24} color={color} />)
-                }}
-            />
-            <Tab.Screen
-                name="QR"
-                component={QRScreen}
-                options={{
-                    tabBarIcon: ({ color }) => (<FontAwesome name="qrcode" size={24} color={color} />)
-                }}
-            />
-            <Tab.Screen
-                name="Profile"
-                component={ProfileScreen}
-                options={{
-                    tabBarIcon: ({ color }) => (<FontAwesome name="user" size={24} color={color} />)
-                }}
-            />
-        </Tab.Navigator>
-    );
-}

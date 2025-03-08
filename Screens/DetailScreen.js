@@ -147,7 +147,7 @@ const styles = StyleSheet.create({
         shadowOpacity: 0.1,
         shadowRadius: 4,
         elevation: 5,
-        position: 'relative', // To position the heart icon absolutely
+        position: 'relative',
     },
     bookImage: {
         width: '90%',

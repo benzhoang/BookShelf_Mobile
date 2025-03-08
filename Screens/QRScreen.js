@@ -1,82 +1,62 @@
-import React, { useState, useEffect } from 'react';
-import { View, Text, StyleSheet, Button, Alert } from 'react-native';
-import { Camera } from 'expo-camera';
+import { CameraView, useCameraPermissions } from 'expo-camera';
+import { useState } from 'react';
+import { Alert, StyleSheet, Text, View } from 'react-native';
 
 export default function QRScreen() {
-    const [hasPermission, setHasPermission] = useState(null);
+    const [permission, requestPermission] = useCameraPermissions();
     const [scanned, setScanned] = useState(false);
-    const [camera, setCamera] = useState(null); // Tham chiếu đến camera
 
-    // Yêu cầu quyền truy cập camera
-    useEffect(() => {
-        (async () => {
-            const { status } = await Camera.requestPermissions();
-            setHasPermission(status === 'granted');
-        })();
-    }, []);
+    if (!permission) return <View />;
+    if (!permission.granted) {
+        return (
+            <View style={styles.container}>
+                <Text style={styles.message}>We need your permission to use the camera</Text>
+                <Button onPress={requestPermission} title="Grant Permission" />
+            </View>
+        );
+    }
 
-    // Xử lý khi quét được mã (QR hoặc barcode)
     const handleBarCodeScanned = ({ type, data }) => {
+        if (scanned) return;
         setScanned(true);
-        Alert.alert(
-            'Mã Đã Quét',
-            `Loại: ${type}\nDữ liệu: ${data}`,
-            [{ text: 'OK', onPress: () => setScanned(false) }]
-        );
+        Alert.alert('QR Code Scanned', `Data: ${data}`, [
+            { text: 'OK', onPress: () => setTimeout(() => setScanned(false), 1000) },
+        ]);
     };
-
-    // Trạng thái khi đang yêu cầu quyền
-    if (hasPermission === null) {
-        return (
-            <View style={styles.container}>
-                <Text>Đang yêu cầu quyền truy cập camera...</Text>
-            </View>
-        );
-    }
-
-    // Trạng thái khi quyền bị từ chối
-    if (hasPermission === false) {
-        return (
-            <View style={styles.container}>
-                <Text>Không có quyền truy cập camera. Vui lòng cấp quyền trong cài đặt.</Text>
-            </View>
-        );
-    }
 
     return (
         <View style={styles.container}>
-            <Camera
-                style={StyleSheet.absoluteFillObject}
-                onBarCodeScanned={scanned ? undefined : handleBarCodeScanned}
-                barCodeScannerSettings={{
-                    barCodeTypes: [
-                        Camera.Constants.BarCodeType.qr,      // Quét mã QR
-                        Camera.Constants.BarCodeType.ean13,   // Quét barcode EAN-13
-                        Camera.Constants.BarCodeType.code128, // Quét barcode Code-128
-                    ],
-                }}
-                ref={(ref) => setCamera(ref)}
-            />
-            {scanned && (
-                <Button title="Quét lại" onPress={() => setScanned(false)} />
-            )}
-            <Text style={styles.instruction}>Hướng camera vào mã QR hoặc barcode</Text>
+            <CameraView
+                style={styles.camera}
+                facing="back"
+                onBarcodeScanned={scanned ? undefined : handleBarCodeScanned}
+                barcodeScannerSettings={{ barcodeTypes: ['qr'] }}
+            >
+                <View style={styles.overlay}>
+                    <View style={styles.scanBox} />
+                    <Text style={styles.instruction}>Align the QR code within the box</Text>
+                </View>
+            </CameraView>
         </View>
     );
 }
 
 const styles = StyleSheet.create({
-    container: {
-        flex: 1,
-        justifyContent: 'center',
-        alignItems: 'center',
-        backgroundColor: '#000',
+    container: { flex: 1, justifyContent: 'center' },
+    message: { textAlign: 'center', paddingBottom: 10 },
+    camera: { flex: 1 },
+    overlay: { flex: 1, justifyContent: 'center', alignItems: 'center' },
+    scanBox: {
+        width: 250,
+        height: 250,
+        borderWidth: 3,
+        borderColor: 'white',
+        borderRadius: 10,
     },
     instruction: {
-        position: 'absolute',
-        bottom: 50,
-        color: '#fff',
+        marginTop: 20,
         fontSize: 16,
+        color: 'white',
         textAlign: 'center',
     },
 });

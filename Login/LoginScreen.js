@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import {
     StyleSheet, Text, TextInput, View, TouchableOpacity, Pressable, Alert
 } from 'react-native';
@@ -26,6 +26,26 @@ export default function Login() {
     const [email, setEmail] = useState('');
     const [password, setPassword] = useState('');
 
+    // Tải thông tin đã lưu khi component mount
+    useEffect(() => {
+        const loadCredentials = async () => {
+            try {
+                const savedEmail = await SecureStore.getItemAsync('savedEmail');
+                const savedPassword = await SecureStore.getItemAsync('savedPassword');
+                const savedRememberMe = await SecureStore.getItemAsync('rememberMe');
+
+                if (savedRememberMe === 'true' && savedEmail && savedPassword) {
+                    setEmail(savedEmail);
+                    setPassword(savedPassword);
+                    setRememberMe(true);
+                }
+            } catch (error) {
+                console.error('Error loading saved credentials:', error);
+            }
+        };
+        loadCredentials();
+    }, []);
+
     // Xử lý đăng nhập
     const handleLogin = async () => {
         if (!email || !password) {
@@ -34,7 +54,7 @@ export default function Login() {
         }
 
         try {
-            console.log(email, password)
+            console.log(email, password);
             const response = await fetch(`${API_URL}/api/auth/login`, {
                 method: 'POST',
                 headers: {
@@ -44,9 +64,21 @@ export default function Login() {
             });
 
             const data = await response.json();
-            console.log(data)
+            console.log(data);
             if (response.ok) {
-                // Lưu token vào SecureStore (nếu cần)
+                // Lưu thông tin nếu "Remember me" được chọn
+                if (rememberMe) {
+                    await SecureStore.setItemAsync('savedEmail', email);
+                    await SecureStore.setItemAsync('savedPassword', password);
+                    await SecureStore.setItemAsync('rememberMe', 'true');
+                } else {
+                    // Xóa thông tin nếu "Remember me" không được chọn
+                    await SecureStore.deleteItemAsync('savedEmail');
+                    await SecureStore.deleteItemAsync('savedPassword');
+                    await SecureStore.deleteItemAsync('rememberMe');
+                }
+
+                // Lưu token nếu cần
                 // await SecureStore.setItemAsync('userToken', data.token);
                 Alert.alert("Success", "Login successful!");
                 navigation.navigate('Home'); // Chuyển hướng đến Home
@@ -124,6 +156,7 @@ export default function Login() {
     );
 }
 
+// Styles giữ nguyên như trong code gốc của bạn
 const styles = StyleSheet.create({
     container: {
         flex: 1,

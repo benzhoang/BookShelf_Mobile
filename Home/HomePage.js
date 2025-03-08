@@ -5,6 +5,7 @@ import { FontAwesome } from '@expo/vector-icons';
 import QRScreen from '../Screens/QRScreen';
 import ProfileScreen from '../Screens/ProfileScreen';
 import CategoryScreen from '../Screens/CategoryScreen';
+import BeginScreen from '../BeginScreen';
 
 function HomeScreen() {
     return (

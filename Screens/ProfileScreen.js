@@ -2,7 +2,7 @@ import React from 'react';
 import { View, Text, Image, TouchableOpacity, StyleSheet } from 'react-native';
 import { FontAwesome } from '@expo/vector-icons'; // Assuming you're using FontAwesome for icons
 
-function ProfileScreen() {
+function ProfileScreen({ navigation }) { // Add navigation as a prop
     return (
         <View style={styles.container}>
             {/* Header with greeting and avatar */}
@@ -35,7 +35,10 @@ function ProfileScreen() {
                     <FontAwesome name="bell" size={20} color="#fff" style={styles.icon} />
                     <Text style={styles.optionText}>Thông báo</Text>
                 </TouchableOpacity>
-                <TouchableOpacity style={styles.optionButton}>
+                <TouchableOpacity
+                    style={styles.optionButton}
+                    onPress={() => navigation.navigate('Begin')} // Navigate to BeginScreen
+                >
                     <FontAwesome name="sign-out" size={20} color="#fff" style={styles.icon} />
                     <Text style={styles.optionText}>Đăng xuất</Text>
                 </TouchableOpacity>

@@ -1,13 +1,16 @@
+import { useNavigation } from "@react-navigation/native";
 import { StatusBar } from "expo-status-bar";
 import { StyleSheet, Text, View, Image, TouchableOpacity } from "react-native";
 
 export default function BeginScreen() {
+
+    const navigation = useNavigation()
     return (
         <View style={styles.container}>
             <StatusBar style="light" />
             <View style={styles.imageContainer}>
                 <Image
-                    source={require("./assets/Login Wallpaper.jpg")} // Replace with your image path
+                    source={require("../assets/Login-Wallpaper.jpg")} // Replace with your image path
                     style={styles.image}
                     resizeMode="cover" // Ensure the image covers the entire container
                 />

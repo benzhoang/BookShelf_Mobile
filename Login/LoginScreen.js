@@ -1,9 +1,9 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import {
     StyleSheet, Text, TextInput, View, TouchableOpacity, Pressable, Alert
 } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
-import { useNavigation } from '@react-navigation/native';
+import { useFocusEffect, useNavigation, useRoute } from '@react-navigation/native';
 import Constants from 'expo-constants';
 import * as SecureStore from 'expo-secure-store';
 
@@ -20,6 +20,7 @@ const CustomCheckBox = ({ value, onChange }) => {
 };
 
 export default function Login() {
+    const route = useRoute()
     const navigation = useNavigation();
     const [showPassword, setShowPassword] = useState(false);
     const [rememberMe, setRememberMe] = useState(false);
@@ -27,7 +28,8 @@ export default function Login() {
     const [password, setPassword] = useState('');
 
     // Tải thông tin đã lưu khi component mount
-    useEffect(() => {
+    useFocusEffect(
+        useCallback(() => {
         const loadCredentials = async () => {
             try {
                 const savedEmail = await SecureStore.getItemAsync('savedEmail');
@@ -44,7 +46,7 @@ export default function Login() {
             }
         };
         loadCredentials();
-    }, []);
+    }, [route]));
 
     // Xử lý đăng nhập
     const handleLogin = async () => {
@@ -54,7 +56,7 @@ export default function Login() {
         }
 
         try {
-            console.log(email, password);
+
             const response = await fetch(`${API_URL}/api/auth/login`, {
                 method: 'POST',
                 headers: {
@@ -64,7 +66,6 @@ export default function Login() {
             });
 
             const data = await response.json();
-            console.log(data);
             if (response.ok) {
                 // Lưu thông tin nếu "Remember me" được chọn
                 if (rememberMe) {

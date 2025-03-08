@@ -11,6 +11,7 @@ import HomeScreen from '../Home/HomePage';
 import QRScreen from '../Screens/QRScreen';
 import ProfileScreen from '../Screens/ProfileScreen';
 import CategoryScreen from '../Screens/CategoryScreen';
+import { NavigationContainer } from '@react-navigation/native';
 
 const Tab = createBottomTabNavigator();
 
@@ -21,18 +22,16 @@ export default function Navigator() {
 
     const StackNavigator = () => {
         return (
-            <NavigationContainer >
-                <Stack.Navigator>
-                    <Stack.Screen name="Begin" component={BeginScreen} options={{ headerShown: false }} />
-                    <Stack.Screen name="Register" component={Register} />
-                    <Stack.Screen name="Login" component={Login} />
-                    <Stack.Screen name="Home" component={TabNavigator} />
-                    <Stack.Screen name="CategoryScreen" component={CategoryScreen} />
-                    <Stack.Screen name="ProductScreen" component={ProductScreen} />
-                    <Stack.Screen name="DetailScreen" component={DetailScreen} />
-                    <Stack.Screen name="Profile" component={ProfileScreen} />
-                </Stack.Navigator>
-            </NavigationContainer>
+            <Stack.Navigator>
+                <Stack.Screen name="Begin" component={BeginScreen} options={{ headerShown: false }} />
+                <Stack.Screen name="Register" component={Register} />
+                <Stack.Screen name="Login" component={Login} />
+                <Stack.Screen name="Home" component={TabNavigator} />
+                <Stack.Screen name="CategoryScreen" component={CategoryScreen} />
+                <Stack.Screen name="ProductScreen" component={ProductScreen} />
+                <Stack.Screen name="DetailScreen" component={DetailScreen} />
+                <Stack.Screen name="Profile" component={ProfileScreen} />
+            </Stack.Navigator>
         )
     }
     const TabNavigator = () => {
@@ -78,7 +77,10 @@ export default function Navigator() {
     }
 
     return (
-        <StackNavigator />
+
+        <NavigationContainer>
+            <StackNavigator />
+        </NavigationContainer>
     );
 
 }

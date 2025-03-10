@@ -13,6 +13,8 @@ import ProfileScreen from '../Screens/ProfileScreen';
 import CategoryScreen from '../Screens/CategoryScreen';
 import { NavigationContainer } from '@react-navigation/native';
 import ResultScreen from '../Screens/ResultScreen';
+import ChangeInfoScreen from "../Screens/ChangeInfoScreen";
+import ForgotPasswordScreen from "../Screens/ForgotPasswordScreen";
 
 const Tab = createBottomTabNavigator();
 
@@ -33,6 +35,8 @@ export default function Navigator() {
                 <Stack.Screen name="DetailScreen" component={DetailScreen} />
                 <Stack.Screen name="Profile" component={ProfileScreen} />
                 <Stack.Screen name="ResultScreen" component={ResultScreen} options={{ title: 'Result' }} />
+                <Stack.Screen name="Forgot Password" component={ForgotPasswordScreen} options={{ headerShown: false }} />
+                <Stack.Screen name="Change Info" component={ChangeInfoScreen} />
             </Stack.Navigator>
         )
     }

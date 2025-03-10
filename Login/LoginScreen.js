@@ -30,23 +30,23 @@ export default function Login() {
     // Tải thông tin đã lưu khi component mount
     useFocusEffect(
         useCallback(() => {
-        const loadCredentials = async () => {
-            try {
-                const savedEmail = await SecureStore.getItemAsync('savedEmail');
-                const savedPassword = await SecureStore.getItemAsync('savedPassword');
-                const savedRememberMe = await SecureStore.getItemAsync('rememberMe');
+            const loadCredentials = async () => {
+                try {
+                    const savedEmail = await SecureStore.getItemAsync('savedEmail');
+                    const savedPassword = await SecureStore.getItemAsync('savedPassword');
+                    const savedRememberMe = await SecureStore.getItemAsync('rememberMe');
 
-                if (savedRememberMe === 'true' && savedEmail && savedPassword) {
-                    setEmail(savedEmail);
-                    setPassword(savedPassword);
-                    setRememberMe(true);
+                    if (savedRememberMe === 'true' && savedEmail && savedPassword) {
+                        setEmail(savedEmail);
+                        setPassword(savedPassword);
+                        setRememberMe(true);
+                    }
+                } catch (error) {
+                    console.error('Error loading saved credentials:', error);
                 }
-            } catch (error) {
-                console.error('Error loading saved credentials:', error);
-            }
-        };
-        loadCredentials();
-    }, [route]));
+            };
+            loadCredentials();
+        }, [route]));
 
     // Xử lý đăng nhập
     const handleLogin = async () => {
@@ -122,7 +122,7 @@ export default function Login() {
                 <CustomCheckBox value={rememberMe} onChange={setRememberMe} />
                 <Text style={styles.rememberText}>Remember me</Text>
 
-                <TouchableOpacity>
+                <TouchableOpacity onPress={() => navigation.navigate('Forgot Password')}>
                     <Text style={styles.forgotPassword}>Forgot Password?</Text>
                 </TouchableOpacity>
             </View>

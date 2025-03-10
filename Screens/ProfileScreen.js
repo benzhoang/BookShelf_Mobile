@@ -19,7 +19,7 @@ function ProfileScreen({ navigation }) { // Add navigation as a prop
 
             {/* List of options/buttons with icons */}
             <View style={styles.optionsContainer}>
-                <TouchableOpacity style={styles.optionButton}>
+                <TouchableOpacity style={styles.optionButton} onPress={() => navigation.navigate('Change Info')}>
                     <FontAwesome name="edit" size={20} color="#fff" style={styles.icon} />
                     <Text style={styles.optionText}>Thay đổi</Text>
                 </TouchableOpacity>

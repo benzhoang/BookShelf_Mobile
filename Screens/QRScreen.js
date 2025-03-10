@@ -1,10 +1,12 @@
 import { CameraView, useCameraPermissions } from 'expo-camera';
 import { useState } from 'react';
-import { Alert, Button, StyleSheet, Text, View } from 'react-native';
+import { Button, StyleSheet, Text, View } from 'react-native';
+import { useNavigation } from '@react-navigation/native'; // Import useNavigation
 
 export default function QRScreen() {
     const [permission, requestPermission] = useCameraPermissions();
     const [scanned, setScanned] = useState(false);
+    const navigation = useNavigation(); // Hook để điều hướng
 
     if (!permission) return <View />;
     if (!permission.granted) {
@@ -17,11 +19,14 @@ export default function QRScreen() {
     }
 
     const handleBarCodeScanned = ({ type, data }) => {
-        if (scanned) return;
-        setScanned(true);
-        Alert.alert('QR Code Scanned', `Data: ${data}`, [
-            { text: 'OK', onPress: () => setTimeout(() => setScanned(false), 1000) },
-        ]);
+        if (scanned) return; // Ngăn không cho quét thêm khi đã quét thành công
+        setScanned(true); // Tạm dừng quét
+
+        // Chuyển hướng đến màn hình khác, ví dụ: 'ResultScreen', và gửi dữ liệu QR
+        navigation.navigate('ResultScreen', { qrData: data });
+
+        // Đặt lại trạng thái scanned sau 1 giây để cho phép quét lại nếu quay lại màn hình này
+        setTimeout(() => setScanned(false), 1000);
     };
 
     return (
@@ -29,7 +34,7 @@ export default function QRScreen() {
             <CameraView
                 style={styles.camera}
                 facing="back"
-                onBarcodeScanned={scanned ? undefined : handleBarCodeScanned}
+                onBarcodeScanned={scanned ? undefined : handleBarCodeScanned} // Tắt quét khi scanned = true
                 barcodeScannerSettings={{ barcodeTypes: ['qr'] }}
             >
                 <View style={styles.overlay}>

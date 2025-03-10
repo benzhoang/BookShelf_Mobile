@@ -12,6 +12,7 @@ import QRScreen from '../Screens/QRScreen';
 import ProfileScreen from '../Screens/ProfileScreen';
 import CategoryScreen from '../Screens/CategoryScreen';
 import { NavigationContainer } from '@react-navigation/native';
+import ResultScreen from '../Screens/ResultScreen';
 
 const Tab = createBottomTabNavigator();
 
@@ -31,6 +32,7 @@ export default function Navigator() {
                 <Stack.Screen name="ProductScreen" component={ProductScreen} />
                 <Stack.Screen name="DetailScreen" component={DetailScreen} />
                 <Stack.Screen name="Profile" component={ProfileScreen} />
+                <Stack.Screen name="ResultScreen" component={ResultScreen} options={{ title: 'Result' }} />
             </Stack.Navigator>
         )
     }

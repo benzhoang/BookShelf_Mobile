@@ -21,7 +21,7 @@ import { GoogleSignin } from "@react-native-google-signin/google-signin";
 // Cấu hình Google Sign-In
 GoogleSignin.configure({
   webClientId:
-    "893835836207-iscj7vol6181lk2d0hqet7ttp6he8ahr.apps.googleusercontent.com",
+    "444269606457-qg9gmdr2ch3ire2r0ch7apjhn8pvdbl1.apps.googleusercontent.com",
 });
 
 // Lấy URL API từ .env

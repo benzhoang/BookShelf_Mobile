@@ -22,8 +22,6 @@
       },
       "permissions": [
         "android.permission.CAMERA",
-        "android.permission.RECORD_AUDIO",
-        "android.permission.CAMERA",
         "android.permission.RECORD_AUDIO"
       ],
       "package": "com.hungpham281.BookShelf"
@@ -40,6 +38,11 @@
           "recordAudioAndroid": true
         }
       ]
-    ]
+    ],
+    "extra": {
+      "eas": {
+        "projectId": "6f91a626-e46a-48c0-b89e-b0742a8910f6"
+      }
+    }
   }
 }

@@ -24,7 +24,7 @@
         "android.permission.CAMERA",
         "android.permission.RECORD_AUDIO"
       ],
-      "package": "com.hungpham281.BookShelf"
+      "package": "com.BookShelf"
     },
     "web": {
       "favicon": "./assets/favicon.png"

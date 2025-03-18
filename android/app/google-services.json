@@ -1,0 +1,47 @@
+{
+  "project_info": {
+    "project_number": "444269606457",
+    "project_id": "auth-yt-58cbe",
+    "storage_bucket": "auth-yt-58cbe.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:444269606457:android:381dab703e933cfe5c3fe8",
+        "android_client_info": {
+          "package_name": "com.BookShelf"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "444269606457-abpae0ifoo6blqn76vufpm9t9s13m9il.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.BookShelf",
+            "certificate_hash": "5e8f16062ea3cd2c4a0d547876baa6f38cabf625"
+          }
+        },
+        {
+          "client_id": "444269606457-qg9gmdr2ch3ire2r0ch7apjhn8pvdbl1.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyABtgMHwtrF3Wtj2369EdRt32QkMZisG2U"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "444269606457-qg9gmdr2ch3ire2r0ch7apjhn8pvdbl1.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

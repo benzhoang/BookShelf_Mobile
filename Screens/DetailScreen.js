@@ -1,8 +1,8 @@
 import React, { useState, useEffect } from 'react';
 import { View, Text, Image, StyleSheet, ScrollView, ActivityIndicator, TouchableOpacity } from 'react-native';
-import Icon from 'react-native-vector-icons/FontAwesome'; // Install this package
+import Icon from 'react-native-vector-icons/FontAwesome'; // Đảm bảo package này đã được cài đặt
 
-// API URL from environment variable
+// API URL từ biến môi trường
 const API_URL = process.env.EXPO_PUBLIC_API_URL || 'https://bookshelf-be.onrender.com';
 
 function DetailScreen({ route, navigation }) {
@@ -10,7 +10,7 @@ function DetailScreen({ route, navigation }) {
     const [book, setBook] = useState(null);
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState(null);
-    const [isFavorite, setIsFavorite] = useState(false); // State to track favorite status
+    const [isFavorite, setIsFavorite] = useState(false);
 
     useEffect(() => {
         const fetchBookDetails = async () => {
@@ -21,8 +21,6 @@ function DetailScreen({ route, navigation }) {
                 console.log('Book Details Response:', data);
                 setBook(data);
                 setLoading(false);
-                // Check if the book is already in favorites (e.g., from local storage or API)
-                // For now, assume it's not favorited initially
             } catch (err) {
                 setError('Không thể tải thông tin sách');
                 setLoading(false);
@@ -32,18 +30,22 @@ function DetailScreen({ route, navigation }) {
         fetchBookDetails();
     }, [bookID]);
 
-    // Function to toggle favorite status
     const toggleFavorite = () => {
         setIsFavorite(!isFavorite);
         if (isFavorite) {
-            // Logic to remove from favorites (e.g., API call or local storage update)
             console.log('Removed from favorites');
         } else {
-            // Logic to add to favorites (e.g., API call or local storage update)
             console.log('Added to favorites');
-            // You can navigate to FavoriteScreen or update a global state here
-            // Example: navigation.navigate('FavouriteScreen', { book });
         }
+    };
+
+    // Hàm xử lý khi nhấn nút thêm vào giỏ hàng
+    const addToCart = () => {
+        console.log(`${book.bookName} đã được thêm vào giỏ hàng`);
+        // Ở đây bạn có thể thêm logic thực tế như:
+        // - Gọi API để thêm vào giỏ hàng
+        // - Cập nhật state toàn cục (nếu dùng Redux/Context)
+        // - Hiển thị thông báo thành công
     };
 
     if (loading) {
@@ -70,7 +72,7 @@ function DetailScreen({ route, navigation }) {
                 <View style={styles.imageContainer}>
                     <TouchableOpacity style={styles.favoriteButton} onPress={toggleFavorite}>
                         <Icon
-                            name={isFavorite ? 'star' : 'star-o'} // Filled star when favorite, outline when not
+                            name={isFavorite ? 'star' : 'star-o'}
                             size={30}
                             color={isFavorite ? 'gold' : '#5A4032'}
                         />
@@ -114,6 +116,12 @@ function DetailScreen({ route, navigation }) {
                         <Text style={styles.label}>Mô tả: </Text>
                         <Text style={styles.description}>{book.description}</Text>
                     </View>
+
+                    {/* Nút Thêm vào giỏ hàng */}
+                    <TouchableOpacity style={styles.addToCartButton} onPress={addToCart}>
+                        <Icon name="shopping-cart" size={20} color="#FFF" style={styles.cartIcon} />
+                        <Text style={styles.addToCartText}>Thêm vào giỏ hàng</Text>
+                    </TouchableOpacity>
                 </View>
             </View>
         </ScrollView>
@@ -213,7 +221,26 @@ const styles = StyleSheet.create({
         position: 'absolute',
         left: 15,
         top: 15,
-        zIndex: 1, // Ensure it stays above the image
+        zIndex: 1,
+    },
+    addToCartButton: {
+        flexDirection: 'row',
+        backgroundColor: '#8F6B4A',
+        paddingVertical: 12,
+        paddingHorizontal: 20,
+        borderRadius: 10,
+        alignItems: 'center',
+        justifyContent: 'center',
+        marginTop: 20,
+    },
+    addToCartText: {
+        color: '#FFF',
+        fontSize: 18,
+        fontWeight: 'bold',
+        fontFamily: 'System',
+    },
+    cartIcon: {
+        marginRight: 10,
     },
 });
 

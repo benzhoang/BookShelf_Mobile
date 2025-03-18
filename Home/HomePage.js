@@ -1,91 +1,181 @@
-import React, { useState } from 'react';
-import { View, Text, TextInput, Image } from 'react-native';
-import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
+import React, { useState, useEffect } from 'react';
+import { View, Text, TextInput, Image, ScrollView, TouchableOpacity } from 'react-native';
 import { FontAwesome } from '@expo/vector-icons';
 import Swiper from 'react-native-swiper';
 
-export default function HomeScreen() {
-    const [image, setImage] = useState('https://cdn3.pixelcut.app/7/20/uncrop_hero_bdf08a8ca6.jpg');
+const ERROR_IMAGE = require('../assets/loi-404-tren-cyber-panel.jpg');
+const API_URL = process.env.EXPO_PUBLIC_API_URL || 'https://bookshelf-be.onrender.com';
 
-    const carouselItems = [
-        {
-            title: "Featured Book 1",
-            image: "https://cdn3.pixelcut.app/7/20/uncrop_hero_bdf08a8ca6.jpg",
-        },
-        {
-            title: "Featured Book 2",
-            image: "https://cdn3.pixelcut.app/7/20/uncrop_hero_bdf08a8ca6.jpg",
-        },
-        {
-            title: "Featured Book 3",
-            image: "https://cdn3.pixelcut.app/7/20/uncrop_hero_bdf08a8ca6.jpg",
-        },
-    ];
+export default function HomeScreen({ navigation }) { // Add navigation prop here
+    const [image, setImage] = useState('https://i.pinimg.com/564x/79/18/0d/79180d55bc72774c0b5a7daaf14de77f.jpg');
+    const [carouselItems, setCarouselItems] = useState([]);
+    const [trendingBooks, setTrendingBooks] = useState([]);
+
+    useEffect(() => {
+        fetch(`${API_URL}/api/books`)
+            .then(response => response.json())
+            .then(data => {
+                const formattedItems = data.slice(0, 3).map(book => ({
+                    title: book.bookName,
+                    image: book.image || book.coverUrl || null,
+                    bookID: book._id // Assuming your API returns an _id field for each book
+                }));
+                setCarouselItems(formattedItems);
+
+                // Include image and bookID in trending books
+                setTrendingBooks(data.map(book => ({
+                    bookName: book.bookName,
+                    availableStock: book.availableStock || 0,
+                    image: book.image || book.coverUrl || null,
+                    bookID: book._id // Assuming your API returns an _id field for each book
+                })));
+            })
+            .catch(error => {
+                console.error('Error fetching books:', error);
+                setCarouselItems([
+                    { title: 'Book 1', image: null },
+                    { title: 'Book 2', image: null },
+                    { title: 'Book 3', image: null },
+                ]);
+                setTrendingBooks([]);
+            });
+    }, []);
+
+    const getValidImage = (imageUrl) => {
+        if (imageUrl && imageUrl !== 'null' && imageUrl !== '' && typeof imageUrl === 'string') {
+            return { uri: imageUrl };
+        }
+        return ERROR_IMAGE;
+    };
+
+    // Function to handle navigation to DetailScreen
+    const navigateToDetail = (bookID) => {
+        navigation.navigate('DetailScreen', { bookID });
+    };
 
     return (
-        <View style={{ flex: 1, backgroundColor: '#C4A484', padding: 20 }}>
-            <View style={{ flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center' }}>
-                <Text style={{ fontSize: 16, color: '#fff' }}>Xin chào USER 🌿</Text>
-                <Image
-                    source={{ uri: image }}
-                    style={{ width: 50, height: 50, borderRadius: 25 }}
-                />
-            </View>
+        <ScrollView style={{ flex: 1, backgroundColor: '#C4A484' }}>
+            <View style={{ padding: 20 }}>
+                <View style={{ flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center' }}>
+                    <Text style={{ fontSize: 16, color: '#fff' }}>Xin chào USER 🌿</Text>
+                    <Image
+                        source={getValidImage(image)}
+                        style={{ width: 50, height: 50, borderRadius: 25 }}
+                    />
+                </View>
 
-            <Text style={{ fontSize: 20, fontWeight: 'bold', marginVertical: 10, color: '#fff' }}>
-                Relax and read book
-            </Text>
+                <Text style={{ fontSize: 20, fontWeight: 'bold', marginVertical: 10, color: '#fff' }}>
+                    Relax and read book
+                </Text>
 
-            <View style={{
-                flexDirection: 'row',
-                backgroundColor: '#fff',
-                borderRadius: 20,
-                padding: 10,
-                alignItems: 'center',
-                marginBottom: 20
-            }}>
-                <FontAwesome name="search" size={20} color="#000" style={{ marginRight: 10 }} />
-                <TextInput placeholder="Search book" style={{ flex: 1 }} />
-            </View>
+                <View style={{
+                    flexDirection: 'row',
+                    backgroundColor: '#fff',
+                    borderRadius: 20,
+                    padding: 10,
+                    alignItems: 'center',
+                    marginBottom: 20
+                }}>
+                    <FontAwesome name="search" size={20} color="#000" style={{ marginRight: 10 }} />
+                    <TextInput placeholder="Search book" style={{ flex: 1 }} />
+                </View>
 
-            <View style={{ height: 200, marginBottom: 20 }}>
-                <Swiper
-                    style={{}}
-                    showsButtons={false}
-                    autoplay={true}
-                    autoplayTimeout={3}
-                    showsPagination={true}
-                    dotStyle={{ backgroundColor: 'rgba(255,255,255,0.3)' }}
-                    activeDotStyle={{ backgroundColor: '#fff' }}
-                >
-                    {carouselItems.map((item, index) => (
-                        <View key={index} style={{ flex: 1 }}>
+                <View style={{ height: 200, marginBottom: 20 }}>
+                    <Swiper
+                        style={{}}
+                        showsButtons={false}
+                        autoplay={true}
+                        autoplayTimeout={3}
+                        showsPagination={false}
+                    >
+                        {carouselItems.map((item, index) => (
+                            <TouchableOpacity
+                                key={index}
+                                style={{ flex: 1 }}
+                                onPress={() => navigateToDetail(item.bookID)} // Navigate on press
+                            >
+                                <Image
+                                    source={getValidImage(item.image)}
+                                    style={{
+                                        width: '100%',
+                                        height: '100%',
+                                        borderRadius: 10,
+                                        resizeMode: 'contain'
+                                    }}
+                                    resizeMode="cover"
+                                    defaultSource={ERROR_IMAGE}
+                                />
+                                <Text style={{
+                                    position: 'absolute',
+                                    bottom: 10,
+                                    left: 10,
+                                    color: '#fff',
+                                    fontSize: 16,
+                                    fontWeight: 'bold',
+                                    textShadowColor: 'rgba(0, 0, 0, 0.75)',
+                                    textShadowOffset: { width: -1, height: 1 },
+                                    textShadowRadius: 10
+                                }}>
+                                    {item.title}
+                                </Text>
+                            </TouchableOpacity>
+                        ))}
+                    </Swiper>
+                </View>
+
+                <Text style={{
+                    fontSize: 18,
+                    fontWeight: 'bold',
+                    color: '#fff',
+                    marginBottom: 10
+                }}>
+                    Sách đang nổi
+                </Text>
+
+                <View style={{ marginBottom: 20 }}>
+                    {trendingBooks.map((book, index) => (
+                        <TouchableOpacity
+                            key={index}
+                            style={{
+                                flexDirection: 'row',
+                                alignItems: 'center',
+                                backgroundColor: 'rgba(255, 255, 255, 0.1)',
+                                padding: 10,
+                                borderRadius: 10,
+                                marginBottom: 10
+                            }}
+                            onPress={() => navigateToDetail(book.bookID)} // Navigate on press
+                        >
                             <Image
-                                source={{ uri: item.image }}
+                                source={getValidImage(book.image)}
                                 style={{
-                                    width: '100%',
-                                    height: '100%',
-                                    borderRadius: 10
+                                    width: 50,
+                                    height: 70,
+                                    borderRadius: 5,
+                                    marginRight: 10
                                 }}
                                 resizeMode="cover"
+                                defaultSource={ERROR_IMAGE}
                             />
-                            <Text style={{
-                                position: 'absolute',
-                                bottom: 10,
-                                left: 10,
-                                color: '#fff',
-                                fontSize: 16,
-                                fontWeight: 'bold',
-                                textShadowColor: 'rgba(0, 0, 0, 0.75)',
-                                textShadowOffset: { width: -1, height: 1 },
-                                textShadowRadius: 10
-                            }}>
-                                {item.title}
-                            </Text>
-                        </View>
+                            <View style={{ flex: 1 }}>
+                                <Text style={{
+                                    color: '#fff',
+                                    fontSize: 16,
+                                    fontWeight: 'bold'
+                                }}>
+                                    {book.bookName}
+                                </Text>
+                                <Text style={{
+                                    color: '#fff',
+                                    fontSize: 14
+                                }}>
+                                    Còn: {book.availableStock}
+                                </Text>
+                            </View>
+                        </TouchableOpacity>
                     ))}
-                </Swiper>
+                </View>
             </View>
-        </View>
+        </ScrollView>
     );
 }

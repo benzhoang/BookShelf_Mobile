@@ -15,7 +15,6 @@ function ProductScreen({ route, navigation }) {
             try {
                 const response = await fetch(`${API_URL}/api/books?category=${categoryName}`);
                 const data = await response.json();
-                console.log('API Response:', data); // Log the full response for debugging
                 setProducts(data);
                 setLoading(false);
             } catch (err) {

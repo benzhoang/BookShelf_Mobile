@@ -15,7 +15,8 @@ import { NavigationContainer } from '@react-navigation/native';
 import ResultScreen from '../Screens/ResultScreen';
 import ChangeInfoScreen from "../Screens/ChangeInfoScreen";
 import ForgotPasswordScreen from "../Screens/ForgotPasswordScreen";
-import CartScreen from '../Screens/CartScreen';
+import FavoriteScreen from "../Screens/FavoriteScreen";
+import InvoiceDetailScreen from '../Screens/InvoiceDetailScreen';
 
 const Tab = createBottomTabNavigator();
 const Stack = createStackNavigator();
@@ -36,6 +37,21 @@ const StackNavigator = () => {
             <Stack.Screen name="ResultScreen" component={ResultScreen} options={{ title: 'Result' }} />
             <Stack.Screen name="Forgot Password" component={ForgotPasswordScreen} options={{ headerShown: false }} />
             <Stack.Screen name="Change Info" component={ChangeInfoScreen} />
+            <Stack.Screen name="InvoiceDetailScreen" component={InvoiceDetailScreen} />
+            <Stack.Screen
+                name="Favorite"
+                component={FavoriteScreen}
+                options={{
+                    title: "Sách yêu thích",
+                    headerStyle: {
+                        backgroundColor: "#8B5E3C",
+                    },
+                    headerTintColor: "#fff",
+                    headerTitleStyle: {
+                        fontWeight: "bold",
+                    },
+                }}
+            />
         </Stack.Navigator>
     );
 };
@@ -69,13 +85,6 @@ const TabNavigator = () => {
                 component={QRScreen}
                 options={{
                     tabBarIcon: ({ color }) => (<FontAwesome name="qrcode" size={24} color={color} />)
-                }}
-            />
-            <Tab.Screen
-                name="Cart"
-                component={CartScreen}
-                options={{
-                    tabBarIcon: ({ color }) => (<FontAwesome name="shopping-cart" size={24} color={color} />)
                 }}
             />
             <Tab.Screen

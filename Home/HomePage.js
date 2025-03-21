@@ -6,10 +6,12 @@ import Swiper from 'react-native-swiper';
 const ERROR_IMAGE = require('../assets/loi-404-tren-cyber-panel.jpg');
 const API_URL = process.env.EXPO_PUBLIC_API_URL || 'https://bookshelf-be.onrender.com';
 
-export default function HomeScreen({ navigation }) { // Add navigation prop here
+export default function HomeScreen({ navigation }) {
     const [image, setImage] = useState('https://i.pinimg.com/564x/79/18/0d/79180d55bc72774c0b5a7daaf14de77f.jpg');
     const [carouselItems, setCarouselItems] = useState([]);
     const [trendingBooks, setTrendingBooks] = useState([]);
+    const [searchTerm, setSearchTerm] = useState('');
+    const [filteredBooks, setFilteredBooks] = useState([]);
 
     useEffect(() => {
         fetch(`${API_URL}/api/books`)
@@ -18,17 +20,18 @@ export default function HomeScreen({ navigation }) { // Add navigation prop here
                 const formattedItems = data.slice(0, 3).map(book => ({
                     title: book.bookName,
                     image: book.image || book.coverUrl || null,
-                    bookID: book._id // Assuming your API returns an _id field for each book
+                    bookID: book._id
                 }));
                 setCarouselItems(formattedItems);
 
-                // Include image and bookID in trending books
-                setTrendingBooks(data.map(book => ({
+                const booksData = data.map(book => ({
                     bookName: book.bookName,
-                    availableStock: book.availableStock || 0,
+                    quantity: book.quantity || 0,
                     image: book.image || book.coverUrl || null,
-                    bookID: book._id // Assuming your API returns an _id field for each book
-                })));
+                    bookID: book._id
+                }));
+                setTrendingBooks(booksData);
+                setFilteredBooks(booksData); // Initially show all books
             })
             .catch(error => {
                 console.error('Error fetching books:', error);
@@ -38,8 +41,22 @@ export default function HomeScreen({ navigation }) { // Add navigation prop here
                     { title: 'Book 3', image: null },
                 ]);
                 setTrendingBooks([]);
+                setFilteredBooks([]);
             });
     }, []);
+
+    // Handle search functionality
+    const handleSearch = (text) => {
+        setSearchTerm(text);
+        if (text.trim() === '') {
+            setFilteredBooks(trendingBooks); // Show all books when search is empty
+        } else {
+            const filtered = trendingBooks.filter(book =>
+                book.bookName.toLowerCase().includes(text.toLowerCase())
+            );
+            setFilteredBooks(filtered);
+        }
+    };
 
     const getValidImage = (imageUrl) => {
         if (imageUrl && imageUrl !== 'null' && imageUrl !== '' && typeof imageUrl === 'string') {
@@ -48,7 +65,6 @@ export default function HomeScreen({ navigation }) { // Add navigation prop here
         return ERROR_IMAGE;
     };
 
-    // Function to handle navigation to DetailScreen
     const navigateToDetail = (bookID) => {
         navigation.navigate('DetailScreen', { bookID });
     };
@@ -77,7 +93,12 @@ export default function HomeScreen({ navigation }) { // Add navigation prop here
                     marginBottom: 20
                 }}>
                     <FontAwesome name="search" size={20} color="#000" style={{ marginRight: 10 }} />
-                    <TextInput placeholder="Search book" style={{ flex: 1 }} />
+                    <TextInput
+                        placeholder="Search book"
+                        style={{ flex: 1 }}
+                        value={searchTerm}
+                        onChangeText={handleSearch}
+                    />
                 </View>
 
                 <View style={{ height: 200, marginBottom: 20 }}>
@@ -92,7 +113,7 @@ export default function HomeScreen({ navigation }) { // Add navigation prop here
                             <TouchableOpacity
                                 key={index}
                                 style={{ flex: 1 }}
-                                onPress={() => navigateToDetail(item.bookID)} // Navigate on press
+                                onPress={() => navigateToDetail(item.bookID)}
                             >
                                 <Image
                                     source={getValidImage(item.image)}
@@ -133,7 +154,7 @@ export default function HomeScreen({ navigation }) { // Add navigation prop here
                 </Text>
 
                 <View style={{ marginBottom: 20 }}>
-                    {trendingBooks.map((book, index) => (
+                    {filteredBooks.map((book, index) => (
                         <TouchableOpacity
                             key={index}
                             style={{
@@ -144,7 +165,7 @@ export default function HomeScreen({ navigation }) { // Add navigation prop here
                                 borderRadius: 10,
                                 marginBottom: 10
                             }}
-                            onPress={() => navigateToDetail(book.bookID)} // Navigate on press
+                            onPress={() => navigateToDetail(book.bookID)}
                         >
                             <Image
                                 source={getValidImage(book.image)}
@@ -169,11 +190,16 @@ export default function HomeScreen({ navigation }) { // Add navigation prop here
                                     color: '#fff',
                                     fontSize: 14
                                 }}>
-                                    Còn: {book.availableStock}
+                                    Còn: {book.quantity}
                                 </Text>
                             </View>
                         </TouchableOpacity>
                     ))}
+                    {filteredBooks.length === 0 && (
+                        <Text style={{ color: '#fff', textAlign: 'center' }}>
+                            Không tìm thấy sách nào
+                        </Text>
+                    )}
                 </View>
             </View>
         </ScrollView>

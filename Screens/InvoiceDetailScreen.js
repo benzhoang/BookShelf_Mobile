@@ -12,34 +12,52 @@ import Icon from "react-native-vector-icons/FontAwesome";
 function InvoiceDetailScreen({ route, navigation }) {
     const { book } = route.params;
 
+    // Parse book data safely
+    const parsedBook = React.useMemo(() => {
+        try {
+            return typeof book === "string" && book.trim().startsWith("{")
+                ? JSON.parse(book)
+                : book;
+        } catch (e) {
+            console.error("Error parsing book data:", e);
+            return book; // Fallback to original value
+        }
+    }, [book]);
+
+    // Helper function to get image source
+    const getImageSource = () => {
+        if (Array.isArray(parsedBook.image) && parsedBook.image.length > 0) {
+            return { uri: parsedBook.image[0] };
+        }
+        if (typeof parsedBook.image === "string" && parsedBook.image.trim()) {
+            return { uri: parsedBook.image };
+        }
+        return require("../assets/loi-404-tren-cyber-panel.jpg");
+    };
+
+    // Format price helper
+    const formatPrice = (price) => {
+        return parseFloat(price || 0).toLocaleString("vi-VN") + " VND";
+    };
+
     return (
         <ScrollView style={styles.container}>
-
             <View style={styles.content}>
                 <View style={styles.imageContainer}>
-                    {Array.isArray(book.image) && book.image.length > 0 ? (
-                        <Image
-                            source={{ uri: book.image[0] }}
-                            style={styles.bookImage}
-                        />
-                    ) : typeof book.image === "string" && book.image.trim() ? (
-                        <Image
-                            source={{ uri: book.image }}
-                            style={styles.bookImage}
-                        />
-                    ) : (
-                        <Image
-                            source={require("../assets/loi-404-tren-cyber-panel.jpg")}
-                            style={styles.bookImage}
-                        />
-                    )}.
+                    <Image
+                        source={getImageSource()}
+                        style={styles.bookImage}
+                        defaultSource={require("../assets/loi-404-tren-cyber-panel.jpg")}
+                    />
                 </View>
 
                 <View style={styles.detailsCard}>
-                    <Text style={styles.bookTitle}>{book.name}</Text>
+                    <Text style={styles.bookTitle}>{parsedBook.name || "Unknown Title"}</Text>
                     <View style={styles.detailRow}>
                         <Text style={styles.label}>Author:</Text>
-                        <Text style={styles.value}>{book.author}</Text>
+                        <Text style={styles.value}>
+                            {parsedBook.author || "N/A"}
+                        </Text>
                     </View>
                     <View style={styles.detailRow}>
                         <Text style={styles.label}>Quantity:</Text>
@@ -47,25 +65,18 @@ function InvoiceDetailScreen({ route, navigation }) {
                     </View>
                     <View style={styles.detailRow}>
                         <Text style={styles.label}>Price:</Text>
-                        <Text style={styles.value}>
-                            ${parseFloat(book.price).toLocaleString("en-US", {
-                                minimumFractionDigits: 2,
-                                maximumFractionDigits: 2
-                            })}
-                        </Text>
+                        <Text style={styles.value}>{formatPrice(parsedBook.price)}</Text>
                     </View>
                     <View style={styles.totalRow}>
                         <Text style={styles.totalLabel}>Total:</Text>
-                        <Text style={styles.totalValue}>
-                            ${parseFloat(book.price).toLocaleString("en-US", {
-                                minimumFractionDigits: 2,
-                                maximumFractionDigits: 2
-                            })}
-                        </Text>
+                        <Text style={styles.totalValue}>{formatPrice(parsedBook.price)}</Text>
                     </View>
                 </View>
 
-                <TouchableOpacity style={styles.confirmButton}>
+                <TouchableOpacity
+                    style={styles.confirmButton}
+                    onPress={() => console.log("Purchase confirmed", parsedBook)}
+                >
                     <Text style={styles.confirmButtonText}>Confirm Purchase</Text>
                 </TouchableOpacity>
             </View>
@@ -77,20 +88,6 @@ const styles = StyleSheet.create({
     container: {
         flex: 1,
         backgroundColor: "#F5E8C7",
-    },
-    header: {
-        flexDirection: "row",
-        alignItems: "center",
-        padding: 15,
-        backgroundColor: "#FFF8E7",
-        borderBottomWidth: 1,
-        borderBottomColor: "#8F6B4A",
-    },
-    headerTitle: {
-        fontSize: 20,
-        fontWeight: "bold",
-        color: "#5A4032",
-        marginLeft: 15,
     },
     content: {
         padding: 15,

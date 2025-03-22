@@ -15,37 +15,60 @@ const API_URL =
     process.env.EXPO_PUBLIC_API_URL || "https://bookshelf-be.onrender.com";
 
 function DetailScreen({ route, navigation }) {
-    const { bookID } = route.params; // Chỉ cần bookID, không cần qrData nữa
+    const { bookID } = route.params; // bookID might be a JSON string or plain string
     const [book, setBook] = useState(null);
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState(null);
     const [isFavorite, setIsFavorite] = useState(false);
+
+    // Parse bookID if it’s a JSON string
+    let parsedBookID;
+    try {
+        parsedBookID = typeof bookID === "string" && bookID.trim().startsWith("{")
+            ? JSON.parse(bookID).id // Assuming the JSON has an 'id' field
+            : bookID; // If not JSON, use it as is
+    } catch (e) {
+        console.error("Error parsing bookID:", e);
+        parsedBookID = bookID; // Fallback to original value
+    }
 
     useEffect(() => {
         const checkFavoriteStatus = async () => {
             try {
                 const favorites = await AsyncStorage.getItem("favorites");
                 const favoritesArray = favorites ? JSON.parse(favorites) : [];
-                setIsFavorite(favoritesArray.includes(bookID));
+                setIsFavorite(favoritesArray.includes(parsedBookID));
             } catch (err) {
                 console.error("Error checking favorite status:", err);
             }
         };
 
         checkFavoriteStatus();
-    }, [bookID]);
+    }, [parsedBookID]);
 
     useEffect(() => {
         const fetchBookDetails = async () => {
             try {
-                if (!bookID || typeof bookID !== 'string' || bookID.trim() === '') {
+                if (!parsedBookID || typeof parsedBookID !== 'string' || parsedBookID.trim() === '') {
                     throw new Error("Invalid book ID");
                 }
-                console.log("Fetching book details for bookID:", bookID);
-                const response = await fetch(`${API_URL}/api/books/${bookID}`);
-                const data = await response.json();
-                setBook(data);
-                setLoading(false);
+                console.log("Fetching book details for parsedBookID:", parsedBookID);
+                const response = await fetch(`${API_URL}/api/books/${parsedBookID}`);
+
+                if (!response.ok) {
+                    console.log("Book not found, navigating to QRScreen");
+                    navigation.navigate("QRScreen");
+                    return;
+                } else {
+                    const data = await response.json();
+                    if (!data || !data.bookName) {
+                        console.log("Invalid book data, navigating to QRScreen");
+                        navigation.navigate("QRScreen");
+                        return;
+                    }
+                    setBook(data);
+                    setLoading(false);
+                }
             } catch (err) {
                 setError("Không thể tải thông tin sách");
                 setLoading(false);
@@ -54,7 +77,7 @@ function DetailScreen({ route, navigation }) {
         };
 
         fetchBookDetails();
-    }, [bookID]);
+    }, [parsedBookID, navigation]);
 
     const toggleFavorite = async () => {
         try {
@@ -62,11 +85,11 @@ function DetailScreen({ route, navigation }) {
             let favoritesArray = favorites ? JSON.parse(favorites) : [];
 
             if (isFavorite) {
-                favoritesArray = favoritesArray.filter((id) => id !== bookID);
-                console.log("Removed from favorites", { bookID, favoritesArray });
+                favoritesArray = favoritesArray.filter((id) => id !== parsedBookID);
+                console.log("Removed from favorites", { parsedBookID, favoritesArray });
             } else {
-                favoritesArray.push(bookID);
-                console.log("Added to favorites", { bookID, favoritesArray });
+                favoritesArray.push(parsedBookID);
+                console.log("Added to favorites", { parsedBookID, favoritesArray });
             }
 
             await AsyncStorage.setItem("favorites", JSON.stringify(favoritesArray));
@@ -78,10 +101,10 @@ function DetailScreen({ route, navigation }) {
 
     const handlePricePress = () => {
         const bookData = {
-            id: bookID,
+            id: parsedBookID,
             name: book.bookName,
             price: book?.price?.$numberDecimal,
-            author: book.actorID?.actorName || "Chưa xác định",
+            author: book.actor?.actorName || "Chưa xác định",
             image: book.image,
         };
         console.log("Navigating to InvoiceDetailScreen with book data:", bookData);
@@ -89,7 +112,7 @@ function DetailScreen({ route, navigation }) {
     };
 
     if (loading) {
-        console.log("Rendering loading state for bookID:", bookID);
+        console.log("Rendering loading state for parsedBookID:", parsedBookID);
         return (
             <View style={styles.center}>
                 <ActivityIndicator size="large" color="#FFD700" />
@@ -108,7 +131,7 @@ function DetailScreen({ route, navigation }) {
     }
 
     console.log("Rendering book details:", {
-        bookID,
+        parsedBookID,
         bookName: book.bookName,
         isFavorite,
         hasImage: !!book.image,
@@ -153,15 +176,15 @@ function DetailScreen({ route, navigation }) {
                     <View style={styles.detailRow}>
                         <Text style={styles.label}>Tác giả: </Text>
                         <Text style={styles.value}>
-                            {book.actorID?.actorName
-                                ? book.actorID.actorName
+                            {book.actor?.actorName
+                                ? book.actor.actorName
                                 : "Chưa xác định"}
                         </Text>
                     </View>
                     <View style={styles.detailRow}>
                         <Text style={styles.label}>Danh mục: </Text>
                         <Text style={styles.value}>
-                            {book.categoryID ? book.categoryID.categoryName : "Không có"}
+                            {book.category ? book.category.categoryName : "Không có"}
                         </Text>
                     </View>
                     <View style={styles.detailRow}>
@@ -173,13 +196,10 @@ function DetailScreen({ route, navigation }) {
                         onPress={handlePricePress}
                     >
                         <View style={styles.priceButtonContent}>
-                            <Icon name="dollar" size={24} color="#FFF8E7" />
+                            <Icon size={24} color="#FFF8E7" />
                             <Text style={styles.priceButtonText}>
                                 {book?.price?.$numberDecimal
-                                    ? `${parseFloat(book.price.$numberDecimal).toLocaleString(
-                                        "en-US",
-                                        { minimumFractionDigits: 2, maximumFractionDigits: 2 }
-                                    )}`
+                                    ? `${parseFloat(book.price.$numberDecimal).toLocaleString("vi-VN")} ₫`
                                     : "Không có giá"}
                             </Text>
                         </View>

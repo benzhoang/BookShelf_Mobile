@@ -13,7 +13,7 @@ function ProductScreen({ route, navigation }) {
     useEffect(() => {
         const fetchProducts = async () => {
             try {
-                const response = await fetch(`${API_URL}/api/books?category=${categoryName}`);
+                const response = await fetch(`${API_URL}/api/books?categoryName=${categoryName}`);
                 const data = await response.json();
                 setProducts(data);
                 setLoading(false);

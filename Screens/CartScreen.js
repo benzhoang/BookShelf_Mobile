@@ -3,100 +3,107 @@ import {
     View,
     Text,
     FlatList,
+    Image,
     StyleSheet,
     TouchableOpacity,
     Alert,
 } from "react-native";
+import Icon from "react-native-vector-icons/FontAwesome";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 
-function InvoiceDetailScreen({ navigation }) {
-    const [invoiceItems, setInvoiceItems] = useState([]);
+function CartScreen({ navigation }) {
+    const [cartItems, setCartItems] = useState([]);
     const [loading, setLoading] = useState(true);
 
     useEffect(() => {
-        const loadInvoiceItems = async () => {
+        const loadCartItems = async () => {
             try {
                 const storedCart = await AsyncStorage.getItem("cart");
                 const items = storedCart ? JSON.parse(storedCart) : [];
-                // Adding quantity default to 1 if not present in cart items
-                const itemsWithQuantity = items.map(item => ({
-                    ...item,
-                    quantity: item.quantity || 1
-                }));
-                setInvoiceItems(itemsWithQuantity);
+                setCartItems(items);
                 setLoading(false);
             } catch (err) {
-                console.error("Error loading invoice items:", err);
+                console.error("Error loading cart items:", err);
                 setLoading(false);
             }
         };
 
-        loadInvoiceItems();
-    }, []);
+        loadCartItems();
+        const unsubscribe = navigation.addListener('focus', loadCartItems);
+        return unsubscribe;
+    }, [navigation]);
 
-    const calculateTotal = () => {
-        return invoiceItems.reduce((total, item) => {
-            const price = parseFloat(item.price) || 0;
-            const quantity = item.quantity || 1;
-            return total + (price * quantity);
-        }, 0);
+    const removeFromCart = async (bookId) => {
+        try {
+            const updatedCart = cartItems.filter(item => item.id !== bookId);
+            await AsyncStorage.setItem("cart", JSON.stringify(updatedCart));
+            setCartItems(updatedCart);
+            console.log("Removed item from cart:", bookId);
+        } catch (err) {
+            console.error("Error removing item from cart:", err);
+        }
     };
 
-    const handlePayment = async () => {
+    const clearCart = async () => {
         Alert.alert(
-            "Xác nhận thanh toán",
-            "Bạn có chắc muốn thực hiện thanh toán?",
+            "Xác nhận",
+            "Bạn có chắc muốn xóa toàn bộ giỏ hàng?",
             [
                 {
                     text: "Hủy",
                     style: "cancel"
                 },
                 {
-                    text: "Thanh toán",
+                    text: "Xóa",
                     onPress: async () => {
                         try {
-                            // Clear the cart after successful payment
                             await AsyncStorage.removeItem("cart");
-                            Alert.alert(
-                                "Thành công",
-                                "Thanh toán đã được thực hiện thành công!",
-                                [{
-                                    text: "OK",
-                                    onPress: () => navigation.navigate("Trang chủ")
-                                }]
-                            );
+                            setCartItems([]);
+                            console.log("Cart cleared");
                         } catch (err) {
-                            console.error("Error processing payment:", err);
-                            Alert.alert("Lỗi", "Có lỗi xảy ra khi thanh toán!");
+                            console.error("Error clearing cart:", err);
                         }
                     },
-                    style: "default"
+                    style: "destructive"
                 }
             ]
         );
     };
 
+    const calculateTotal = () => {
+        return cartItems.reduce((total, item) => {
+            const price = parseFloat(item.price) || 0;
+            return total + price;
+        }, 0);
+    };
+
     const renderItem = ({ item }) => (
-        <View style={styles.invoiceItem}>
+        <View style={styles.cartItem}>
+            <Image
+                source={{ uri: item.image }}
+                style={styles.itemImage}
+                onError={(e) => console.log("Image load error:", e)}
+            />
             <View style={styles.itemDetails}>
                 <Text style={styles.itemName}>{item.name}</Text>
                 <Text style={styles.itemAuthor}>{item.author}</Text>
-                <View style={styles.priceQuantityContainer}>
-                    <Text style={styles.itemPrice}>
-                        {parseFloat(item.price).toLocaleString("vi-VN")} ₫
-                    </Text>
-                    <Text style={styles.itemQuantity}>
-                        x {item.quantity}
-                    </Text>
-                </View>
+                <Text style={styles.itemPrice}>
+                    {parseFloat(item.price).toLocaleString("vi-VN")} ₫
+                </Text>
             </View>
+            <TouchableOpacity
+                style={styles.removeButton}
+                onPress={() => removeFromCart(item.id)}
+            >
+                <Icon name="trash" size={24} color="#D32F2F" />
+            </TouchableOpacity>
         </View>
     );
 
     if (loading) {
         return (
             <View style={styles.center}>
-                <Text style={styles.loadingText}>Đang tải hóa đơn...</Text>
+                <Text style={styles.loadingText}>Đang tải giỏ hàng...</Text>
             </View>
         );
     }
@@ -104,16 +111,22 @@ function InvoiceDetailScreen({ navigation }) {
     return (
         <View style={styles.container}>
             <View style={styles.header}>
-                <Text style={styles.headerTitle}>Hóa Đơn Chi Tiết</Text>
+                <Text style={styles.headerTitle}>Giỏ Hàng Sách</Text>
             </View>
-            {invoiceItems.length === 0 ? (
+            {cartItems.length === 0 ? (
                 <View style={styles.emptyContainer}>
-                    <Text style={styles.emptyText}>Không có mục nào trong hóa đơn</Text>
+                    <Text style={styles.emptyText}>Giỏ hàng của bạn đang trống</Text>
+                    <TouchableOpacity
+                        style={styles.shopButton}
+                        onPress={() => navigation.navigate("Trang chủ")}
+                    >
+                        <Text style={styles.shopButtonText}>Tiếp tục mua sắm</Text>
+                    </TouchableOpacity>
                 </View>
             ) : (
                 <>
                     <FlatList
-                        data={invoiceItems}
+                        data={cartItems}
                         renderItem={renderItem}
                         keyExtractor={item => item.id}
                         contentContainerStyle={styles.listContainer}
@@ -125,12 +138,20 @@ function InvoiceDetailScreen({ navigation }) {
                                 {calculateTotal().toLocaleString("vi-VN")} ₫
                             </Text>
                         </View>
-                        <TouchableOpacity
-                            style={styles.paymentButton}
-                            onPress={handlePayment}
-                        >
-                            <Text style={styles.paymentButtonText}>Thanh Toán</Text>
-                        </TouchableOpacity>
+                        <View style={styles.buttonContainer}>
+                            <TouchableOpacity
+                                style={styles.clearButton}
+                                onPress={clearCart}
+                            >
+                                <Text style={styles.clearButtonText}>Xóa giỏ hàng</Text>
+                            </TouchableOpacity>
+                            <TouchableOpacity
+                                style={styles.checkoutButton}
+                                onPress={() => navigation.navigate("Hóa đơn")}
+                            >
+                                <Text style={styles.checkoutButtonText}>Xác nhận</Text>
+                            </TouchableOpacity>
+                        </View>
                     </View>
                 </>
             )}
@@ -159,19 +180,28 @@ const styles = StyleSheet.create({
     listContainer: {
         padding: 10,
     },
-    invoiceItem: {
+    cartItem: {
+        flexDirection: "row",
         backgroundColor: "#FFF8E7",
         borderRadius: 10,
-        padding: 15,
+        padding: 10,
         marginBottom: 10,
+        alignItems: "center",
         shadowColor: "#000",
         shadowOffset: { width: 0, height: 1 },
         shadowOpacity: 0.1,
         shadowRadius: 2,
         elevation: 2,
     },
+    itemImage: {
+        width: 60,
+        height: 80,
+        borderRadius: 5,
+        resizeMode: "contain",
+    },
     itemDetails: {
         flex: 1,
+        marginLeft: 10,
     },
     itemName: {
         fontSize: 16,
@@ -185,22 +215,15 @@ const styles = StyleSheet.create({
         marginTop: 2,
         fontFamily: "System",
     },
-    priceQuantityContainer: {
-        flexDirection: "row",
-        justifyContent: "space-between",
-        marginTop: 5,
-    },
     itemPrice: {
         fontSize: 16,
         color: "#8F6B4A",
         fontWeight: "600",
+        marginTop: 5,
         fontFamily: "System",
     },
-    itemQuantity: {
-        fontSize: 16,
-        color: "#8F6B4A",
-        fontWeight: "600",
-        fontFamily: "System",
+    removeButton: {
+        padding: 10,
     },
     footer: {
         padding: 15,
@@ -225,15 +248,34 @@ const styles = StyleSheet.create({
         fontWeight: "bold",
         fontFamily: "System",
     },
-    paymentButton: {
-        backgroundColor: "#8F6B4A",
-        padding: 15,
+    buttonContainer: {
+        flexDirection: "row",
+        justifyContent: "space-between",
+    },
+    clearButton: {
+        backgroundColor: "#D32F2F",
+        padding: 12,
         borderRadius: 8,
+        flex: 1,
+        marginRight: 10,
         alignItems: "center",
     },
-    paymentButtonText: {
+    clearButtonText: {
+        color: "#FFF",
+        fontSize: 16,
+        fontWeight: "600",
+        fontFamily: "System",
+    },
+    checkoutButton: {
+        backgroundColor: "#8F6B4A",
+        padding: 12,
+        borderRadius: 8,
+        flex: 1,
+        alignItems: "center",
+    },
+    checkoutButtonText: {
         color: "#FFF8E7",
-        fontSize: 18,
+        fontSize: 16,
         fontWeight: "600",
         fontFamily: "System",
     },
@@ -245,6 +287,19 @@ const styles = StyleSheet.create({
     emptyText: {
         fontSize: 18,
         color: "#5A4032",
+        marginBottom: 20,
+        fontFamily: "System",
+    },
+    shopButton: {
+        backgroundColor: "#8F6B4A",
+        paddingVertical: 12,
+        paddingHorizontal: 20,
+        borderRadius: 8,
+    },
+    shopButtonText: {
+        color: "#FFF8E7",
+        fontSize: 16,
+        fontWeight: "600",
         fontFamily: "System",
     },
     center: {
@@ -259,4 +314,4 @@ const styles = StyleSheet.create({
     },
 });
 
-export default InvoiceDetailScreen;
+export default CartScreen;

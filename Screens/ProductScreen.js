@@ -29,7 +29,7 @@ function ProductScreen({ route, navigation }) {
     const renderProduct = ({ item }) => (
         <TouchableOpacity
             style={styles.productItem}
-            onPress={() => navigation.navigate('DetailScreen', { bookID: item._id })}
+            onPress={() => navigation.navigate('Chi tiết', { bookID: item._id })}
         >
             {Array.isArray(item.image) && item.image.length > 0 ? (
                 <Image

@@ -15,21 +15,20 @@ const API_URL =
     process.env.EXPO_PUBLIC_API_URL || "https://bookshelf-be.onrender.com";
 
 function DetailScreen({ route, navigation }) {
-    const { bookID } = route.params; // bookID might be a JSON string or plain string
+    const { bookID } = route.params;
     const [book, setBook] = useState(null);
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState(null);
     const [isFavorite, setIsFavorite] = useState(false);
 
-    // Parse bookID if it’s a JSON string
     let parsedBookID;
     try {
         parsedBookID = typeof bookID === "string" && bookID.trim().startsWith("{")
-            ? JSON.parse(bookID).id // Assuming the JSON has an 'id' field
-            : bookID; // If not JSON, use it as is
+            ? JSON.parse(bookID).id
+            : bookID;
     } catch (e) {
         console.error("Error parsing bookID:", e);
-        parsedBookID = bookID; // Fallback to original value
+        parsedBookID = bookID;
     }
 
     useEffect(() => {
@@ -99,16 +98,37 @@ function DetailScreen({ route, navigation }) {
         }
     };
 
-    const handlePricePress = () => {
-        const bookData = {
-            id: parsedBookID,
-            name: book.bookName,
-            price: book?.price?.$numberDecimal,
-            author: book.actor?.actorName || "Chưa xác định",
-            image: book.image,
-        };
-        console.log("Navigating to InvoiceDetailScreen with book data:", bookData);
-        navigation.navigate("InvoiceDetailScreen", { book: bookData });
+    const handleAddToCart = async () => {
+        try {
+            const bookData = {
+                id: parsedBookID,
+                name: book.bookName,
+                price: book?.price?.$numberDecimal,
+                author: book.actor?.actorName || "Chưa xác định",
+                image: book.image,
+                quantity: 1 // Fixed quantity of 1
+            };
+
+            // Get existing cart items from AsyncStorage
+            const cartItems = await AsyncStorage.getItem("cart");
+            let cartArray = cartItems ? JSON.parse(cartItems) : [];
+
+            // Check if book already exists in cart
+            const existingBookIndex = cartArray.findIndex(item => item.id === parsedBookID);
+            if (existingBookIndex === -1) {
+                // If book doesn't exist, add it to cart
+                cartArray.push(bookData);
+            }
+            // If book exists, we won't update quantity since it's fixed at 1
+
+            // Save updated cart to AsyncStorage
+            await AsyncStorage.setItem("cart", JSON.stringify(cartArray));
+
+            console.log("Added to cart:", { bookData, cartArray });
+            navigation.navigate("Giỏ hàng", { addedBook: bookData });
+        } catch (err) {
+            console.error("Error adding to cart:", err);
+        }
     };
 
     if (loading) {
@@ -193,7 +213,7 @@ function DetailScreen({ route, navigation }) {
                     </View>
                     <TouchableOpacity
                         style={styles.priceButton}
-                        onPress={handlePricePress}
+                        onPress={handleAddToCart}
                     >
                         <View style={styles.priceButtonContent}>
                             <Icon size={24} color="#FFF8E7" />

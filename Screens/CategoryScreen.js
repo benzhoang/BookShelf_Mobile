@@ -33,7 +33,7 @@ function CategoryScreen({ navigation }) { // Thêm navigation prop từ React Na
     const renderCategory = ({ item }) => (
         <TouchableOpacity
             style={styles.categoryItem}
-            onPress={() => navigation.navigate('ProductScreen', { categoryName: item.categoryName })} // Điều hướng sang ProductScreen
+            onPress={() => navigation.navigate('Sách', { categoryName: item.categoryName })} // Điều hướng sang ProductScreen
         >
             <Image
                 source={require('../assets/loi-404-tren-cyber-panel.jpg')}

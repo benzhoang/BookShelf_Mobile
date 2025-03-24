@@ -31,7 +31,7 @@ export default function HomeScreen({ navigation }) {
                     bookID: book._id
                 }));
                 setTrendingBooks(booksData);
-                setFilteredBooks(booksData); // Initially show all books
+                setFilteredBooks(booksData);
             })
             .catch(error => {
                 console.error('Error fetching books:', error);
@@ -45,11 +45,10 @@ export default function HomeScreen({ navigation }) {
             });
     }, []);
 
-    // Handle search functionality
     const handleSearch = (text) => {
         setSearchTerm(text);
         if (text.trim() === '') {
-            setFilteredBooks(trendingBooks); // Show all books when search is empty
+            setFilteredBooks(trendingBooks);
         } else {
             const filtered = trendingBooks.filter(book =>
                 book.bookName.toLowerCase().includes(text.toLowerCase())
@@ -66,8 +65,58 @@ export default function HomeScreen({ navigation }) {
     };
 
     const navigateToDetail = (bookID) => {
-        navigation.navigate('DetailScreen', { bookID });
+        navigation.navigate('Chi tiết', { bookID });
     };
+
+    // Container object for Carousel images
+    const CarouselImageContainer = ({ item }) => (
+        <TouchableOpacity
+            style={{ flex: 1 }}
+            onPress={() => navigateToDetail(item.bookID)}
+        >
+            <View style={{
+                flex: 1,
+                position: 'relative',
+                borderRadius: 10,
+                overflow: 'hidden',
+                height: 200, // Giữ nguyên chiều cao container
+                justifyContent: 'center', // Căn giữa theo chiều dọc
+                alignItems: 'center', // Căn giữa theo chiều ngang
+                backgroundColor: 'rgba(0, 0, 0, 0.1)', // Thêm background để thấy rõ vùng container
+            }}>
+                <Image
+                    source={getValidImage(item.image)}
+                    style={{
+                        width: '80%', // Giảm chiều rộng ảnh xuống 80% container
+                        height: '80%', // Giảm chiều cao ảnh xuống 80% container
+                        borderRadius: 10,
+                    }}
+                    resizeMode="contain" // Giữ tỷ lệ ảnh, không crop
+                    defaultSource={ERROR_IMAGE}
+                />
+                <View style={{
+                    position: 'absolute',
+                    bottom: 0,
+                    left: 0,
+                    right: 0,
+                    backgroundColor: 'rgba(0, 0, 0, 0.5)',
+                    padding: 10
+                }}>
+                    <Text style={{
+                        color: '#fff',
+                        fontSize: 16,
+                        fontWeight: 'bold',
+                        textShadowColor: 'rgba(0, 0, 0, 0.75)',
+                        textShadowOffset: { width: -1, height: 1 },
+                        textShadowRadius: 10,
+                        textAlign: 'center'
+                    }}>
+                        {item.title}
+                    </Text>
+                </View>
+            </View>
+        </TouchableOpacity>
+    );
 
     return (
         <ScrollView style={{ flex: 1, backgroundColor: '#C4A484' }}>
@@ -110,36 +159,7 @@ export default function HomeScreen({ navigation }) {
                         showsPagination={false}
                     >
                         {carouselItems.map((item, index) => (
-                            <TouchableOpacity
-                                key={index}
-                                style={{ flex: 1 }}
-                                onPress={() => navigateToDetail(item.bookID)}
-                            >
-                                <Image
-                                    source={getValidImage(item.image)}
-                                    style={{
-                                        width: '100%',
-                                        height: '100%',
-                                        borderRadius: 10,
-                                        resizeMode: 'contain'
-                                    }}
-                                    resizeMode="cover"
-                                    defaultSource={ERROR_IMAGE}
-                                />
-                                <Text style={{
-                                    position: 'absolute',
-                                    bottom: 10,
-                                    left: 10,
-                                    color: '#fff',
-                                    fontSize: 16,
-                                    fontWeight: 'bold',
-                                    textShadowColor: 'rgba(0, 0, 0, 0.75)',
-                                    textShadowOffset: { width: -1, height: 1 },
-                                    textShadowRadius: 10
-                                }}>
-                                    {item.title}
-                                </Text>
-                            </TouchableOpacity>
+                            <CarouselImageContainer key={index} item={item} />
                         ))}
                     </Swiper>
                 </View>

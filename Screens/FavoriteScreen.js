@@ -91,7 +91,7 @@ function FavoriteScreen({ navigation }) {
                 useNativeDriver: true,
             }),
         ]).start(() => {
-            navigation.navigate("DetailScreen", {
+            navigation.navigate("Chi tiết", {
                 bookID: bookId,
                 fromFavorite: true, // Add flag to indicate navigation source
             });

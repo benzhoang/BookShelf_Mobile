@@ -27,7 +27,7 @@ export default function ForgotPasswordScreen() {
         <Text style={styles.continueText}>Continue</Text>
       </TouchableOpacity>
 
-      <TouchableOpacity onPress={() => navigation.navigate("Login")}>
+      <TouchableOpacity onPress={() => navigation.navigate("Đăng nhập")}>
         <Text style={styles.forgotPassword}>Back to login</Text>
       </TouchableOpacity>
     </View>
@@ -79,5 +79,5 @@ const styles = StyleSheet.create({
     fontSize: 14,
     fontWeight: 'bold',
     textAlign: 'center'
-},
+  },
 });

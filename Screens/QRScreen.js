@@ -24,7 +24,7 @@ export default function QRScreen() {
     const handleBarCodeScanned = ({ type, data }) => {
         if (scanned) return;
         setScanned(true);
-        navigation.navigate('DetailScreen', { bookID: data });
+        navigation.navigate('Chi tiết', { bookID: data });
         setTimeout(() => setScanned(false), 1000);
     };
 
@@ -54,7 +54,7 @@ export default function QRScreen() {
 
             if (scannedResult && scannedResult.length > 0) {
                 const { type, data } = scannedResult[0];
-                navigation.navigate('DetailScreen', { bookID: data });
+                navigation.navigate('Chi tiết', { bookID: data });
             } else {
                 Alert.alert('Error', 'No QR code found in the selected image.');
             }

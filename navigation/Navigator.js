@@ -12,34 +12,35 @@ import QRScreen from '../Screens/QRScreen';
 import ProfileScreen from '../Screens/ProfileScreen';
 import CategoryScreen from '../Screens/CategoryScreen';
 import { NavigationContainer } from '@react-navigation/native';
-import ResultScreen from '../Screens/ResultScreen';
+// import ResultScreen from '../Screens/ResultScreen';
 import ChangeInfoScreen from "../Screens/ChangeInfoScreen";
 import ForgotPasswordScreen from "../Screens/ForgotPasswordScreen";
 import FavoriteScreen from "../Screens/FavoriteScreen";
+import CartScreen from '../Screens/CartScreen';
 import InvoiceDetailScreen from '../Screens/InvoiceDetailScreen';
 
 const Tab = createBottomTabNavigator();
 const Stack = createStackNavigator();
 
 // Stack Navigator for Category Tab
-
 const StackNavigator = () => {
     return (
         <Stack.Navigator>
             <Stack.Screen name="Begin" component={BeginScreen} options={{ headerShown: false }} />
-            <Stack.Screen name="Register" component={Register} />
-            <Stack.Screen name="Login" component={Login} />
-            <Stack.Screen name="Home" component={TabNavigator} options={{ headerShown: false }} />
-            <Stack.Screen name="CategoryScreen" component={CategoryScreen} />
-            <Stack.Screen name="ProductScreen" component={ProductScreen} />
-            <Stack.Screen name="DetailScreen" component={DetailScreen} />
-            <Stack.Screen name="Profile" component={ProfileScreen} />
-            <Stack.Screen name="ResultScreen" component={ResultScreen} options={{ title: 'Result' }} />
-            <Stack.Screen name="Forgot Password" component={ForgotPasswordScreen} options={{ headerShown: false }} />
-            <Stack.Screen name="Change Info" component={ChangeInfoScreen} />
-            <Stack.Screen name="InvoiceDetailScreen" component={InvoiceDetailScreen} />
+            <Stack.Screen name="Đăng ký" component={Register} />
+            <Stack.Screen name="Đăng nhập" component={Login} />
+            <Stack.Screen name="Trang chủ" component={TabNavigator} options={{ headerShown: false }} />
+            <Stack.Screen name="Thể loại" component={CategoryScreen} />
+            <Stack.Screen name="Sách" component={ProductScreen} />
+            <Stack.Screen name="Chi tiết" component={DetailScreen} />
+            <Stack.Screen name="Thông tin" component={ProfileScreen} />
+            {/* <Stack.Screen name="ResultScreen" component={ResultScreen} options={{ title: 'Result' }} /> */}
+            <Stack.Screen name="Quên mật khẩu" component={ForgotPasswordScreen} options={{ headerShown: false }} />
+            <Stack.Screen name="Thay đổi thông tin" component={ChangeInfoScreen} />
+            <Stack.Screen name="Giỏ hàng" component={CartScreen} />
+            <Stack.Screen name="Hóa đơn" component={InvoiceDetailScreen} />
             <Stack.Screen
-                name="Favorite"
+                name="Yêu thích"
                 component={FavoriteScreen}
                 options={{
                     title: "Sách yêu thích",
@@ -75,7 +76,7 @@ const TabNavigator = () => {
             />
             <Tab.Screen
                 name="Category"
-                component={CategoryScreen} // Use the CategoryStack here
+                component={CategoryScreen}
                 options={{
                     tabBarIcon: ({ color }) => (<FontAwesome name="list" size={24} color={color} />)
                 }}
@@ -85,6 +86,13 @@ const TabNavigator = () => {
                 component={QRScreen}
                 options={{
                     tabBarIcon: ({ color }) => (<FontAwesome name="qrcode" size={24} color={color} />)
+                }}
+            />
+            <Tab.Screen
+                name="Cart"
+                component={CartScreen}
+                options={{
+                    tabBarIcon: ({ color }) => (<FontAwesome name="shopping-cart" size={24} color={color} />)
                 }}
             />
             <Tab.Screen

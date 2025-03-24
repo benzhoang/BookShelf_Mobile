@@ -82,7 +82,7 @@ export default function Login() {
                 // Lưu token nếu cần
                 // await SecureStore.setItemAsync('userToken', data.token);
                 Alert.alert("Success", "Login successful!");
-                navigation.navigate('Home'); // Chuyển hướng đến Home
+                navigation.navigate('Trang chủ'); // Chuyển hướng đến Home
             } else {
                 Alert.alert("Error", data.message || "Login failed.");
             }
@@ -122,7 +122,7 @@ export default function Login() {
                 <CustomCheckBox value={rememberMe} onChange={setRememberMe} />
                 <Text style={styles.rememberText}>Remember me</Text>
 
-                <TouchableOpacity onPress={() => navigation.navigate('Forgot Password')}>
+                <TouchableOpacity onPress={() => navigation.navigate('Quên mật khẩu')}>
                     <Text style={styles.forgotPassword}>Forgot Password?</Text>
                 </TouchableOpacity>
             </View>
@@ -149,7 +149,7 @@ export default function Login() {
 
             <Text style={styles.footerText}>
                 Don't have an account?{' '}
-                <Text style={styles.link} onPress={() => navigation.navigate('Register')}>
+                <Text style={styles.link} onPress={() => navigation.navigate('Đăng ký')}>
                     Sign up
                 </Text>
             </Text>

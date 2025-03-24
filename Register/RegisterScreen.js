@@ -46,7 +46,7 @@ export default function Register() {
 
             if (response.ok) {
                 Alert.alert("Success", "Registration successful!");
-                navigation.navigate('Login');
+                navigation.navigate('Đăng nhập');
             } else {
                 Alert.alert("Error", data.message || "Registration failed.");
             }
@@ -123,7 +123,7 @@ export default function Register() {
 
             <Text style={styles.footerText}>
                 Already have an account?{' '}
-                <TouchableOpacity onPress={() => navigation.navigate('Login')}>
+                <TouchableOpacity onPress={() => navigation.navigate('Đăng nhập')}>
                     <Text style={styles.link}>Sign in</Text>
                 </TouchableOpacity>
             </Text>

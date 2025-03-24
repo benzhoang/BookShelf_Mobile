@@ -17,10 +17,10 @@ export default function BeginScreen() {
             </View>
             <View style={styles.contentContainer}>
                 <Text style={styles.title}>Choose your BookShelf</Text>
-                <TouchableOpacity style={styles.button} onPress={() => navigation.navigate("Login")}>
+                <TouchableOpacity style={styles.button} onPress={() => navigation.navigate("Đăng nhập")}>
                     <Text style={styles.buttonText}>Sign In</Text>
                 </TouchableOpacity>
-                <TouchableOpacity style={styles.button} onPress={() => navigation.navigate("Register")}>
+                <TouchableOpacity style={styles.button} onPress={() => navigation.navigate("Đăng ký")}>
                     <Text style={styles.buttonText}>Sign Up</Text>
                 </TouchableOpacity>
             </View>

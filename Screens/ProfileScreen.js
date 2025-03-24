@@ -22,7 +22,7 @@ function ProfileScreen({ navigation }) {
             <View style={styles.optionsContainer}>
                 <TouchableOpacity
                     style={styles.optionButton}
-                    onPress={() => navigation.navigate("Change Info")}
+                    onPress={() => navigation.navigate("Thay đổi thông tin")}
                 >
                     <FontAwesome name="edit" size={20} color="#fff" style={styles.icon} />
                     <Text style={styles.optionText}>Thay đổi</Text>
@@ -38,7 +38,7 @@ function ProfileScreen({ navigation }) {
                 </TouchableOpacity>
                 <TouchableOpacity
                     style={styles.optionButton}
-                    onPress={() => navigation.navigate("Favorite")}
+                    onPress={() => navigation.navigate("Yêu thích")}
                 >
                     <FontAwesome
                         name="heart"
